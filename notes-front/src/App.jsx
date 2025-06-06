@@ -10,6 +10,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 
+import GradesManagement from "./pages/Teacher/GradesManagement";
+import NoteForm from "./pages/Teacher/NoteForm";
+
 // Admin Pages
 import AddClassForm from "./pages/add-class";
 import AddStudent from "./pages/add-student";
@@ -59,7 +62,8 @@ function App() {
         {/* Teacher Routes */}
         <Route path="/enseignant" element={<Layout />}>
           <Route path="dashboard" element={<TeacherDashboard />} />
-          {/* Add more teacher routes like grades, students, etc. */}
+          <Route path="grades" element={<GradesManagement />} />
+          <Route path="note-form" element={<NoteForm />} />
         </Route>
 
         {/* Student Routes */}
