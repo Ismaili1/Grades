@@ -15,47 +15,38 @@ function Login() {
 
     axios
       .post("http://localhost:8000/api/login", {
-        email: email,
-        password: password,
+        email,
+        password,
       })
-      .then(function (response) {
-        const token = response.data.token;
+      .then((res) => {
+        const token = res.data.token;
         localStorage.setItem("token", token);
 
         return axios.get("http://localhost:8000/api/user", {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
+          headers: { Authorization: "Bearer " + token },
         });
       })
-      .then(function (response) {
-        const role = response.data.role;
+      .then((res) => {
+        const role = res.data.role;
+        localStorage.setItem("user", JSON.stringify(res.data));
 
         if (role === "admin" || role === "super admin") {
-          navigate("/admin");
-        } else if (role === "étudiant") {
-          navigate("/dashboard");
+          navigate("/admin/dashboard");
         } else if (role === "enseignant") {
-          navigate("/teacher");
+          navigate("/enseignant/dashboard");
+        } else if (role === "étudiant") {
+          navigate("/étudiant/dashboard");
         } else {
           setError("Rôle non reconnu : " + role);
         }
       })
-      .catch(function (error) {
-        if (error.response) {
-          setError(error.response.data.message || "Erreur de connexion");
+      .catch((err) => {
+        if (err.response) {
+          setError(err.response.data.message || "Erreur de connexion");
         } else {
           setError("Erreur de connexion");
         }
       });
-  }
-
-  function handleEmailChange(e) {
-    setEmail(e.target.value);
-  }
-
-  function handlePasswordChange(e) {
-    setPassword(e.target.value);
   }
 
   return (
@@ -86,7 +77,7 @@ function Login() {
                 type="email"
                 className="form-input"
                 value={email}
-                onChange={handleEmailChange}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="Email"
               />
@@ -104,7 +95,7 @@ function Login() {
                 type="password"
                 className="form-input"
                 value={password}
-                onChange={handlePasswordChange}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Password"
               />
