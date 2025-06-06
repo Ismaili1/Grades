@@ -6,13 +6,9 @@ import "../css/ClassStudent.css";
 function ClassStudents() {
   const { id } = useParams();
   const [students, setStudents] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [showAssignForm, setShowAssignForm] = useState(false);
-  const [teachers, setTeachers] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [selectedTeacherId, setSelectedTeacherId] = useState("");
-  const [selectedSubjectId, setSelectedSubjectId] = useState("");
 
   useEffect(function () {
     const token = localStorage.getItem("token");
@@ -23,61 +19,71 @@ function ClassStudents() {
       return;
     }
 
-    // Load teachers
-    axios
-      .get("http://localhost:8000/api/users?role=enseignant", {
+    // Load both students and assignments
+    Promise.all([
+      // Load students
+      axios.get("http://localhost:8000/api/classes/" + id + "/students", {
+        headers: { Authorization: "Bearer " + token },
+      }),
+      // Load all assignments and filter for this class
+      axios.get("http://localhost:8000/api/assignments", {
         headers: { Authorization: "Bearer " + token },
       })
-      .then(function (response) {
-        // Make sure response.data is an array
-        if (Array.isArray(response.data)) {
-          setTeachers(response.data);
+    ])
+      .then(function (responses) {
+        const [studentsResponse, assignmentsResponse] = responses;
+        
+        // Handle students
+        if (Array.isArray(studentsResponse.data)) {
+          setStudents(studentsResponse.data);
         } else {
-          console.error("Teachers API response is not an array:", response.data);
-          setTeachers([]);
-        }
-      })
-      .catch(function (error) {
-        console.error("Error loading teachers:", error);
-        setTeachers([]);
-      });
-
-    // Load subjects
-    axios
-      .get("http://localhost:8000/api/subjects", {
-        headers: { Authorization: "Bearer " + token },
-      })
-      .then(function (response) {
-        // Make sure response.data is an array
-        if (Array.isArray(response.data)) {
-          setSubjects(response.data);
-        } else {
-          console.error("Subjects API response is not an array:", response.data);
-          setSubjects([]);
-        }
-      })
-      .catch(function (error) {
-        console.error("Error loading subjects:", error);
-        setSubjects([]);
-      });
-
-    // Load students
-    axios
-      .get("http://localhost:8000/api/classes/" + id + "/students", {
-        headers: { Authorization: "Bearer " + token },
-      })
-      .then(function (response) {
-        if (Array.isArray(response.data)) {
-          setStudents(response.data);
-        } else {
-          console.error("Students API response is not an array:", response.data);
+          console.error("Students API response is not an array:", studentsResponse.data);
           setStudents([]);
         }
+        
+        // Handle assignments - filter for this class and group by subject
+        if (Array.isArray(assignmentsResponse.data)) {
+          const classAssignments = assignmentsResponse.data.filter(function (assignment) {
+            return assignment.class_id == id;
+          });
+          
+          // Group assignments by subject
+          const subjectsMap = {};
+          classAssignments.forEach(function (assignment) {
+            if (!subjectsMap[assignment.subject_id]) {
+              subjectsMap[assignment.subject_id] = {
+                id: assignment.subject_id,
+                name: assignment.subject_name,
+                teachers: []
+              };
+            }
+            
+            // Add teacher if not already added
+            const teacherExists = subjectsMap[assignment.subject_id].teachers.some(function (teacher) {
+              return teacher.id === assignment.teacher_id;
+            });
+            
+            if (!teacherExists) {
+              subjectsMap[assignment.subject_id].teachers.push({
+                id: assignment.teacher_id,
+                name: assignment.teacher_name
+              });
+            }
+          });
+          
+          // Convert to array
+          const subjectsArray = Object.values(subjectsMap);
+          setSubjects(subjectsArray);
+        } else {
+          console.error("Assignments API response is not an array:", assignmentsResponse.data);
+          setSubjects([]);
+        }
+        
         setLoading(false);
       })
       .catch(function (error) {
-        console.error("Error loading students:", error);
-        setError("Erreur lors du chargement des étudiants.");
+        console.error("Error loading data:", error);
+        setError("Erreur lors du chargement des données.");
         setLoading(false);
       });
   }, [id]);
@@ -105,51 +111,6 @@ function ClassStudents() {
       });
   }
 
-  function handleOpenAssignForm() {
-    setShowAssignForm(true);
-  }
-
-  function handleTeacherChange(event) {
-    setSelectedTeacherId(event.target.value);
-  }
-
-  function handleSubjectChange(event) {
-    setSelectedSubjectId(event.target.value);
-  }
-
-  function handleAssign(event) {
-    event.preventDefault();
-    const token = localStorage.getItem("token");
-
-    if (!selectedTeacherId || !selectedSubjectId) {
-      alert("Veuillez sélectionner un enseignant et une matière.");
-      return;
-    }
-
-    axios
-      .post(
-        "http://localhost:8000/api/assignments",
-        {
-          teacher_id: selectedTeacherId,
-          subject_id: selectedSubjectId,
-          class_id: id,
-        },
-        {
-          headers: { Authorization: "Bearer " + token },
-        }
-      )
-      .then(function () {
-        alert("Enseignant assigné avec succès !");
-        setShowAssignForm(false);
-        setSelectedTeacherId("");
-        setSelectedSubjectId("");
-      })
-      .catch(function (error) {
-        console.error("Error assigning teacher:", error);
-        alert("Échec de l'assignation.");
-      });
-  }
-
   if (loading) {
     return (
       <div className="class-students-container">
@@ -168,72 +129,74 @@ function ClassStudents() {
 
   return (
     <div className="class-students-container">
-      <h2>Étudiants de la classe {id}</h2>
+      <h2>Classe {id}</h2>
 
-      <button className="assign-teacher-btn" onClick={handleOpenAssignForm}>
-        Assigner un enseignant
-      </button>
+      {/* Teachers and Subjects Section */}
+      <div className="teachers-section">
+  <h3>Enseignants et Matières</h3>
+  {subjects.length === 0 ? (
+    <p className="empty-message">Aucune matière assignée.</p>
+  ) : (
+    <table className="subjects-table">
+      <thead>
+        <tr>
+          <th>Matière</th>
+          <th>Enseignant(s)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {subjects.map((subject) => (
+          <tr key={subject.id}>
+            <td className="subject-name">{subject.name}</td>
+            <td>
+              {subject.teachers && subject.teachers.length > 0 ? (
+                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                  {subject.teachers.map((teacher) => (
+                    <li key={teacher.id} style={{ marginBottom: "0.3rem" }}>
+                      {teacher.name}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span className="empty-message">Aucun enseignant assigné</span>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
 
-      {showAssignForm && (
-        <form onSubmit={handleAssign} className="assign-form">
-          <h3>Assigner un enseignant à cette classe</h3>
-
-          <label>Enseignant :</label>
-          <select value={selectedTeacherId} onChange={handleTeacherChange}>
-            <option value="">-- Choisir un enseignant --</option>
-            {Array.isArray(teachers) && teachers.map(function (teacher) {
+      {/* Students Section */}
+      <div className="students-section">
+        <h3>Étudiants</h3>
+        {students.length === 0 ? (
+          <p className="empty-message">Aucun étudiant trouvé.</p>
+        ) : (
+          <ul className="students-list">
+            {students.map(function (student) {
               return (
-                <option key={teacher.id} value={teacher.id}>
-                  {teacher.name}
-                </option>
+                <li key={student.id} className="student-item">
+                  <div>
+                    <strong>Nom:</strong> {student.user.name}
+                    <br />
+                    <strong>Email:</strong> {student.user.email}
+                  </div>
+                  <button
+                    className="delete-btn"
+                    onClick={function () {
+                      handleDelete(student.id, student.user.id);
+                    }}
+                  >
+                    Supprimer
+                  </button>
+                </li>
               );
             })}
-          </select>
-
-          <label>Matière :</label>
-          <select value={selectedSubjectId} onChange={handleSubjectChange}>
-            <option value="">-- Choisir une matière --</option>
-            {Array.isArray(subjects) && subjects.map(function (subject) {
-              return (
-                <option key={subject.id} value={subject.id}>
-                  {subject.name}
-                </option>
-              );
-            })}
-          </select>
-
-          <button type="submit">Assigner</button>
-          <button type="button" onClick={() => setShowAssignForm(false)}>
-            Annuler
-          </button>
-        </form>
-      )}
-
-      {students.length === 0 ? (
-        <p className="empty-message">Aucun étudiant trouvé.</p>
-      ) : (
-        <ul className="students-list">
-          {students.map(function (student) {
-            return (
-              <li key={student.id} className="student-item">
-                <div>
-                  <strong>Nom:</strong> {student.user.name}
-                  <br />
-                  <strong>Email:</strong> {student.user.email}
-                </div>
-                <button
-                  className="delete-btn"
-                  onClick={function () {
-                    handleDelete(student.id, student.user.id);
-                  }}
-                >
-                  Supprimer
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

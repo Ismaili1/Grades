@@ -148,3 +148,70 @@ button[type="submit"]:hover {
     padding: 0.9rem;
   }
 }
+
+.class-selection {
+  width: 100%;
+}
+
+.class-dropdown {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.selected-classes {
+  margin-top: 15px;
+}
+
+.selected-label {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.class-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.class-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #1976d2;
+  white-space: nowrap;
+}
+
+.class-name {
+  margin-right: 8px;
+}
+
+.remove-class {
+  background: none;
+  border: none;
+  color: #1976d2;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.remove-class:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+}
