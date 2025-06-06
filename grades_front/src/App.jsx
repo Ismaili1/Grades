@@ -16,16 +16,16 @@ import AddStudent from "./pages/add-student";
 import AddSubject from "./pages/add-subject";
 import AddTeacher from "./pages/add-teacher";
 import ClassStudents from "./pages/ClassStudent";
+
 import StudentsManagement from "./pages/StudentsManagement";
 import TeachersManagement from "./pages/TeachersManagement";
 import SubjectsManagement from "./pages/SubjectsManagement";
 import ClassesManagement from "./pages/ClassesManagement";
+
 import EditStudent from "./pages/edit-student";
 import EditSubject from "./pages/edit-subject";
 import EditTeacher from "./pages/edit-teacher";
 import EditClass from "./pages/edit-class";
-
-
 
 function App() {
   return (
@@ -33,14 +33,40 @@ function App() {
       <Routes>
         {/* Public Route */}
         <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<StudentDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-         <Route path="/admin/add-class" element={<AddClassForm />} />
-         <Route path="/admin/add-student" element={<AddStudent/>}/>
-         <Route path="/admin/add-subject" element={<AddSubject/>}/>
-         <Route path="/admin/add-teacher" element={<AddTeacher/>}/>
-         <Route path="/admin/class/:id" element={<ClassStudents />} />
 
+        {/* Admin Routes */}
+        <Route path="/admin" element={<Layout />}>
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="add-class" element={<AddClassForm />} />
+          <Route path="add-student" element={<AddStudent />} />
+          <Route path="add-subject" element={<AddSubject />} />
+          <Route path="add-teacher" element={<AddTeacher />} />
+          <Route path="class/:id" element={<ClassStudents />} />
+
+          {/* Management Routes */}
+          <Route path="students" element={<StudentsManagement />} />
+          <Route path="teachers" element={<TeachersManagement />} />
+          <Route path="subjects" element={<SubjectsManagement />} />
+          <Route path="classes" element={<ClassesManagement />} />
+
+          {/* Edit Routes */}
+          <Route path="edit-student/:id" element={<EditStudent />} />
+          <Route path="edit-subject/:id" element={<EditSubject />} />
+          <Route path="edit-teacher/:id" element={<EditTeacher />} />
+          <Route path="edit-class/:id" element={<EditClass />} />
+        </Route>
+
+        {/* Teacher Routes */}
+        <Route path="/enseignant" element={<Layout />}>
+          <Route path="dashboard" element={<TeacherDashboard />} />
+          {/* Add more teacher routes like grades, students, etc. */}
+        </Route>
+
+        {/* Student Routes */}
+        <Route path="/étudiant" element={<Layout />}>
+          <Route path="dashboard" element={<StudentDashboard />} />
+          {/* Add more student routes like viewing notes, etc. */}
+        </Route>
       </Routes>
     </BrowserRouter>
   );
