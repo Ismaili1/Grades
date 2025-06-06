@@ -3,10 +3,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import StudentDashboard from "./pages/StudentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import AddClassForm from "./pages/add-class";
 import AddStudent from "./pages/add-student";
 import AddSubject from "./pages/add-subject";
-import AddTeacher from './pages/add-teacher';
+import AddTeacher from "./pages/add-teacher";
 import ClassStudents from "./pages/ClassStudent";
 
 function App() {
@@ -14,14 +15,14 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        {/* <Route path="/teacher" element={<TeacherDashboard />} /> */}
         <Route path="/dashboard" element={<StudentDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
-         <Route path="/admin/add-class" element={<AddClassForm />} />
-         <Route path="/admin/add-student" element={<AddStudent/>}/>
-         <Route path="/admin/add-subject" element={<AddSubject/>}/>
-         <Route path="/admin/add-teacher" element={<AddTeacher/>}/>
-         <Route path="/admin/class/:id" element={<ClassStudents />} />
-
+        <Route path="/admin/add-class" element={<AddClassForm />} />
+        <Route path="/admin/add-student" element={<AddStudent />} />
+        <Route path="/admin/add-subject" element={<AddSubject />} />
+        <Route path="/admin/add-teacher" element={<AddTeacher />} />
+        <Route path="/admin/class/:id" element={<ClassStudents />} />
       </Routes>
     </BrowserRouter>
   );

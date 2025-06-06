@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-import '../css/Login.css';
+import "../css/Login.css";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -36,6 +35,8 @@ function Login() {
           navigate("/admin");
         } else if (role === "étudiant") {
           navigate("/dashboard");
+        } else if (role === "enseignant") {
+          navigate("/teacher");
         } else {
           setError("Rôle non reconnu : " + role);
         }
@@ -76,7 +77,9 @@ function Login() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email" className="form-label">Email :</label>
+            <label htmlFor="email" className="form-label">
+              Email :
+            </label>
             <div className="input-wrapper">
               <input
                 id="email"
@@ -92,7 +95,9 @@ function Login() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password" className="form-label">Mot de passe :</label>
+            <label htmlFor="password" className="form-label">
+              Mot de passe :
+            </label>
             <div className="input-wrapper">
               <input
                 id="password"
@@ -107,11 +112,15 @@ function Login() {
             </div>
           </div>
 
-          <button type="submit" className="submit-button">Se connecter</button>
+          <button type="submit" className="submit-button">
+            Se connecter
+          </button>
         </form>
 
         <div className="forgot-password">
-          <a href="#" className="forgot-password-link">Mot de passe oublié ?</a>
+          <a href="#" className="forgot-password-link">
+            Mot de passe oublié ?
+          </a>
         </div>
       </div>
     </div>
