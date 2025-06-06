@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-import '../css/Login.css';
+import "../css/Login.css";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -16,45 +15,38 @@ function Login() {
 
     axios
       .post("http://localhost:8000/api/login", {
-        email: email,
-        password: password,
+        email,
+        password,
       })
-      .then(function (response) {
-        const token = response.data.token;
+      .then((res) => {
+        const token = res.data.token;
         localStorage.setItem("token", token);
 
         return axios.get("http://localhost:8000/api/user", {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
+          headers: { Authorization: "Bearer " + token },
         });
       })
-      .then(function (response) {
-        const role = response.data.role;
+      .then((res) => {
+        const role = res.data.role;
+        localStorage.setItem("user", JSON.stringify(res.data));
 
         if (role === "admin" || role === "super admin") {
-          navigate("/admin");
+          navigate("/admin/dashboard");
+        } else if (role === "enseignant") {
+          navigate("/enseignant/dashboard");
         } else if (role === "étudiant") {
-          navigate("/dashboard");
+          navigate("/étudiant/dashboard");
         } else {
           setError("Rôle non reconnu : " + role);
         }
       })
-      .catch(function (error) {
-        if (error.response) {
-          setError(error.response.data.message || "Erreur de connexion");
+      .catch((err) => {
+        if (err.response) {
+          setError(err.response.data.message || "Erreur de connexion");
         } else {
           setError("Erreur de connexion");
         }
       });
-  }
-
-  function handleEmailChange(e) {
-    setEmail(e.target.value);
-  }
-
-  function handlePasswordChange(e) {
-    setPassword(e.target.value);
   }
 
   return (
@@ -76,14 +68,16 @@ function Login() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email" className="form-label">Email :</label>
+            <label htmlFor="email" className="form-label">
+              Email :
+            </label>
             <div className="input-wrapper">
               <input
                 id="email"
                 type="email"
                 className="form-input"
                 value={email}
-                onChange={handleEmailChange}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="Email"
               />
@@ -92,14 +86,16 @@ function Login() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password" className="form-label">Mot de passe :</label>
+            <label htmlFor="password" className="form-label">
+              Mot de passe :
+            </label>
             <div className="input-wrapper">
               <input
                 id="password"
                 type="password"
                 className="form-input"
                 value={password}
-                onChange={handlePasswordChange}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Password"
               />
@@ -107,11 +103,15 @@ function Login() {
             </div>
           </div>
 
-          <button type="submit" className="submit-button">Se connecter</button>
+          <button type="submit" className="submit-button">
+            Se connecter
+          </button>
         </form>
 
         <div className="forgot-password">
-          <a href="#" className="forgot-password-link">Mot de passe oublié ?</a>
+          <a href="#" className="forgot-password-link">
+            Mot de passe oublié ?
+          </a>
         </div>
       </div>
     </div>

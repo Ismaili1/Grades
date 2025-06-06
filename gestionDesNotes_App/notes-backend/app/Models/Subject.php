@@ -22,7 +22,7 @@ class Subject extends Model
 
     public function classes()
     {
-        return $this->belongsToMany(Class_::class, 'teacher_subject')
+        return $this->belongsToMany(Class_::class, 'teacher_subject', 'subject_id', 'class_id')
                     ->withPivot('teacher_id')
                     ->withTimestamps();
     }
