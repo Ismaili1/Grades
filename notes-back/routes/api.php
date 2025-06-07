@@ -62,6 +62,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/assignments', [TeacherAssignmentController::class, 'unassign']);
         Route::get('/teachers/{teacherId}/subjects', [TeacherAssignmentController::class, 'teacherSubjects']);
     });
+
+    // 👨‍🏫 Teacher-Only Routes
+    Route::middleware(['auth:sanctum', CheckRole::class . ':enseignant'])->group(function () {
+        Route::get('/teacher/classes', [\App\Http\Controllers\API\TeacherAssignmentController::class, 'myClasses']);
+        Route::get('/teacher/subjects', [\App\Http\Controllers\API\TeacherAssignmentController::class, 'mySubjects']);
+        Route::get('/teacher/classes/{id}/students', [\App\Http\Controllers\API\TeacherAssignmentController::class, 'myClassStudents']);
+    });
+
+    Route::middleware('auth:sanctum')->get('/academic-years', [\App\Http\Controllers\API\AcademicYearController::class, 'index']);
 });
 
 Route::middleware(['auth:sanctum', CheckRole::class . ':admin'])->get('/dashboard-stats', function () {

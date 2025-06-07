@@ -11,7 +11,7 @@ import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 
 import GradesManagement from "./pages/Teacher/GradesManagement";
-import NoteForm from "./pages/Teacher/NoteForm";
+import MesEtudiants from "./pages/Teacher/etudiants";
 
 // Admin Pages
 import AddClassForm from "./pages/add-class";
@@ -63,7 +63,7 @@ function App() {
         <Route path="/enseignant" element={<Layout />}>
           <Route path="dashboard" element={<TeacherDashboard />} />
           <Route path="grades" element={<GradesManagement />} />
-          <Route path="note-form" element={<NoteForm />} />
+          <Route path="students" element={<MesEtudiants />} />
         </Route>
 
         {/* Student Routes */}

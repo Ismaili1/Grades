@@ -115,4 +115,57 @@ class TeacherAssignmentController extends Controller
             'assignments' => $assignments
         ]);
     }
+
+    // Get all classes assigned to the logged-in teacher
+    public function myClasses(Request $request)
+    {
+        $teacher = $request->user()->teacher;
+        $classIds = \DB::table('teacher_subject')
+            ->where('teacher_id', $teacher->id)
+            ->pluck('class_id')
+            ->unique();
+        $classes = \App\Models\Class_::whereIn('id', $classIds)->get();
+        return response()->json($classes);
+    }
+
+    // Get all subjects assigned to the logged-in teacher, grouped by class
+    public function mySubjects(Request $request)
+    {
+        $teacher = $request->user()->teacher;
+        $assignments = $teacher->subjects()
+            ->with('classes')
+            ->get()
+            ->map(function ($subject) use ($teacher) {
+                $classes = \DB::table('teacher_subject')
+                    ->where('teacher_id', $teacher->id)
+                    ->where('subject_id', $subject->id)
+                    ->join('classes', 'teacher_subject.class_id', '=', 'classes.id')
+                    ->select('classes.*')
+                    ->get();
+                return [
+                    'subject' => $subject,
+                    'classes' => $classes
+                ];
+            });
+        return response()->json([
+            'teacher' => $teacher->load('user'),
+            'assignments' => $assignments
+        ]);
+    }
+
+    // Get students for a class, only if the logged-in teacher is assigned to that class
+    public function myClassStudents(Request $request, $id)
+    {
+        $teacher = $request->user()->teacher;
+        $isAssigned = \DB::table('teacher_subject')
+            ->where('teacher_id', $teacher->id)
+            ->where('class_id', $id)
+            ->exists();
+        if (!$isAssigned) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        $class = \App\Models\Class_::findOrFail($id);
+        $students = $class->students()->with('user')->get();
+        return response()->json($students);
+    }
 }
