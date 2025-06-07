@@ -106,11 +106,25 @@ function TeachersManagement() {
   }
 
   function goBack() {
-    navigate("/admin");
+    navigate("/admin/dashboard");
   }
 
   function goToAddTeacher() {
     navigate("/admin/add-teacher");
+  }
+
+  // Helper function to get subject name (since teacher has only one subject)
+  function getSubjectName(teacher) {
+    // Check if teacher relationship exists and has subjects
+    if (teacher.teacher && teacher.teacher.subjects && Array.isArray(teacher.teacher.subjects) && teacher.teacher.subjects.length > 0) {
+      return teacher.teacher.subjects[0].name;
+    }
+    return "Aucune matière assignée";
+  }
+
+  // Helper function to check if teacher has a subject
+  function hasSubject(teacher) {
+    return teacher.teacher && teacher.teacher.subjects && Array.isArray(teacher.teacher.subjects) && teacher.teacher.subjects.length > 0;
   }
 
   if (loading) {
@@ -162,11 +176,12 @@ function TeachersManagement() {
                   <h3 className="teacher-name">{teacher.name || "Nom non disponible"}</h3>
                   <p className="teacher-id">ID: {teacher.id || "N/A"}</p>
                   <p className="teacher-email">{teacher.email || "Email non disponible"}</p>
-                  {teacher.teacher && teacher.teacher.subjects && (
-                    <p className="teacher-subjects">
-                      Matières: {teacher.teacher.subjects.length || "0"}
-                    </p>
-                  )}
+                  <p className="teacher-subject">
+                    Matière: {getSubjectName(teacher)}
+                  </p>
+                  <p className="teacher-status">
+                    Statut: {hasSubject(teacher) ? "Assigné" : "Non assigné"}
+                  </p>
                 </div>
                 <div className="teacher-actions">
                   <button

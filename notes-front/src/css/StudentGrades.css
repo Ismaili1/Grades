@@ -1,0 +1,339 @@
+/* Tailwind base styling assumed */
+
+.app-container {
+  padding: 1rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Inter', sans-serif;
+  color: #1f2937; /* gray-800 */
+  margin-left: 240px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  background-color: #3b82f6; /* blue-500 */
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.header-left h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.header-left p {
+  font-size: 1rem;
+  color: #6b7280; /* gray-500 */
+}
+
+.header-right select.year-select {
+  background-color: #e0e7ff; /* indigo-100 */
+  border-radius: 0.375rem;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+.export-button {
+  background-color: #6366f1; /* indigo-500 */
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.export-button:hover {
+  background-color: #4f46e5; /* indigo-600 */
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stats-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  color: white;
+  box-shadow: 0 8px 20px -6px rgba(99,102,241,0.7);
+}
+
+.stats-card.blue {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.stats-card.green {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.stats-card.red {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+
+.stats-card.purple {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.icon-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+}
+
+.blue-bg {
+  background-color: rgba(59, 130, 246, 0.7);
+}
+
+.green-bg {
+  background-color: rgba(34, 197, 94, 0.7);
+}
+
+.red-bg {
+  background-color: rgba(239, 68, 68, 0.7);
+}
+
+.purple-bg {
+  background-color: rgba(139, 92, 246, 0.7);
+}
+
+/* Filters */
+.filters-container {
+  background-color: #f9fafb; /* gray-50 */
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.filters-header h2 {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.toggle-filters-button {
+  background-color: #3b82f6; /* blue-500 */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-filters-button:hover {
+  background-color: #2563eb; /* blue-600 */
+}
+
+.toggle-filters-button .rotated {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+  margin-bottom: 1rem;
+}
+
+.search-bar svg {
+  margin-right: 0.5rem;
+  color: #9ca3af; /* gray-400 */
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 1rem;
+  color: #374151; /* gray-700 */
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.filters-grid label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  display: block;
+  color: #374151;
+}
+
+.filters-grid select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db; /* gray-300 */
+  background-color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.clear-filters-button {
+  background-color: #ef4444; /* red-500 */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.clear-filters-button:hover {
+  background-color: #b91c1c; /* red-700 */
+}
+
+/* Grades Table */
+.grades-table-container {
+  overflow-x: auto;
+}
+
+.grades-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.grades-table thead tr {
+  background-color: #3b82f6; /* blue-500 */
+  color: white;
+}
+
+.grades-table th,
+.grades-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb; /* gray-200 */
+}
+
+.subject-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2563eb; /* blue-600 */
+  font-weight: 600;
+}
+
+.subject-cell svg {
+  color: #2563eb;
+}
+
+.grade-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 1rem;
+}
+
+.grade-green {
+  background-color: #22c55e; /* green-500 */
+  color: white;
+}
+
+.grade-blue {
+  background-color: #3b82f6; /* blue-500 */
+  color: white;
+}
+
+.grade-yellow {
+  background-color: #facc15; /* yellow-400 */
+  color: black;
+}
+
+.grade-orange {
+  background-color: #f97316; /* orange-500 */
+  color: white;
+}
+
+.grade-red {
+  background-color: #ef4444; /* red-500 */
+  color: white;
+}
+
+.no-grades-msg {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+/* Loading Screen */
+.loading-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #3b82f6;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.spinner {
+  border: 4px solid #d1d5db;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

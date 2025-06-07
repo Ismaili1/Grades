@@ -89,7 +89,7 @@ function ClassesManagement() {
   }
 
   function goBack() {
-    navigate("/admin");
+    navigate("/admin/dashboard");
   }
 
   function goToAddClass() {

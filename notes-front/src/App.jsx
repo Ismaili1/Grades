@@ -8,7 +8,8 @@ import Layout from "./components/Layout";
 // Dashboards
 import AdminDashboard from "./pages/AdminDashboard";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
-import StudentDashboard from "./pages/StudentDashboard";
+import StudentDashboard from "./pages/Student/StudentDashboard";
+import StudentGrades from "./pages/Student/StudentGrades";
 
 import GradesManagement from "./pages/Teacher/GradesManagement";
 import MesEtudiants from "./pages/Teacher/etudiants";
@@ -69,7 +70,7 @@ function App() {
         {/* Student Routes */}
         <Route path="/étudiant" element={<Layout />}>
           <Route path="dashboard" element={<StudentDashboard />} />
-          {/* Add more student routes like viewing notes, etc. */}
+          <Route path="grades" element={<StudentGrades/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

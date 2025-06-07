@@ -29,20 +29,23 @@ function StudentsManagement() {
       }
     })
     .then(function(response) {
-      console.log("API Response:", response); // Debug log
+      console.log("API Response:", response);
       
-      // Handle different possible response structures
+      // Handle paginated response from Laravel
       let studentsData = [];
-      if (Array.isArray(response.data)) {
+      if (response.data && Array.isArray(response.data.data)) {
+        studentsData = response.data.data; // Laravel pagination format
+      } else if (Array.isArray(response.data)) {
         studentsData = response.data;
-      } else if (response.data && Array.isArray(response.data.users)) {
-        studentsData = response.data.users;
-      } else if (response.data && Array.isArray(response.data.data)) {
-        studentsData = response.data.data;
       }
 
       if (studentsData.length === 0) {
         setError("Aucun étudiant trouvé dans la base de données.");
+      }
+
+      console.log("Students data:", studentsData);
+      if (studentsData.length > 0) {
+        console.log("Sample student with class:", studentsData[0]);
       }
 
       setStudents(studentsData);
@@ -61,10 +64,14 @@ function StudentsManagement() {
       setFilteredStudents(students);
     } else {
       const filtered = students.filter(function(student) {
+        const searchLower = searchTerm.toLowerCase();
         return (
-          (student.name && student.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (student.name && student.name.toLowerCase().includes(searchLower)) ||
           (student.id && student.id.toString().includes(searchTerm)) ||
-          (student.email && student.email.toLowerCase().includes(searchTerm.toLowerCase()))
+          (student.email && student.email.toLowerCase().includes(searchLower)) ||
+          // Search in class name if available
+          (student.student && student.student.class && student.student.class.name && 
+           student.student.class.name.toLowerCase().includes(searchLower))
         );
       });
       setFilteredStudents(filtered);
@@ -90,10 +97,13 @@ function StudentsManagement() {
         });
         setStudents(updatedStudents);
         setFilteredStudents(updatedStudents.filter(function(student) {
+          const searchLower = searchTerm.toLowerCase();
           return (
-            (student.name && student.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (student.name && student.name.toLowerCase().includes(searchLower)) ||
             (student.id && student.id.toString().includes(searchTerm)) ||
-            (student.email && student.email.toLowerCase().includes(searchTerm.toLowerCase()))
+            (student.email && student.email.toLowerCase().includes(searchLower)) ||
+            (student.student && student.student.class && student.student.class.name && 
+             student.student.class.name.toLowerCase().includes(searchLower))
           );
         }));
         alert("Étudiant supprimé avec succès.");
@@ -106,11 +116,19 @@ function StudentsManagement() {
   }
 
   function goBack() {
-    navigate("/admin");
+    navigate("/admin/dashboard");
   }
 
   function goToAddStudent() {
     navigate("/admin/add-student");
+  }
+
+  // Helper function to get class name
+  function getStudentClassName(student) {
+    if (student.student && student.student.class && student.student.class.name) {
+      return student.student.class.name;
+    }
+    return "Non assigné";
   }
 
   if (loading) {
@@ -135,7 +153,7 @@ function StudentsManagement() {
         <input
           type="text"
           className="search-input"
-          placeholder="Rechercher par nom, ID ou email..."
+          placeholder="Rechercher par nom, ID, email ou classe..."
           value={searchTerm}
           onChange={function(e) { setSearchTerm(e.target.value); }}
         />
@@ -162,9 +180,10 @@ function StudentsManagement() {
                   <h3 className="student-name">{student.name || "Nom non disponible"}</h3>
                   <p className="student-id">ID: {student.id || "N/A"}</p>
                   <p className="student-email">{student.email || "Email non disponible"}</p>
-                  {student.student && student.student.class && (
-                    <p className="student-class">Classe: {student.student.class.name || "N/A"}</p>
-                  )}
+                  <p className="student-class">
+                    <strong>Classe: </strong>
+                    <span className="class-name">{getStudentClassName(student)}</span>
+                  </p>
                 </div>
                 <div className="student-actions">
                   <button
