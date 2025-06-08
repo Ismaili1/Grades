@@ -64,6 +64,7 @@ class GradeController extends Controller
             'subject_id' => 'required|exists:subjects,id',
             'academic_year_id' => 'required|exists:academic_years,id',
             'grade' => 'required|numeric|min:0|max:20',
+            'grading_period' => 'required|string',
         ]);
         
         $teacher_id = $user->isTeacher() ? $user->teacher->id : $request->teacher_id;
@@ -74,6 +75,7 @@ class GradeController extends Controller
             'subject_id' => $request->subject_id,
             'academic_year_id' => $request->academic_year_id,
             'grade' => $request->grade,
+            'grading_period' => $request->grading_period,
         ]);
         
         return response()->json([

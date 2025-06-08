@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Teacher;
 use App\Models\Subject;
-use App\Models\Class_;
+use App\Models\SchoolClass;
 
 class TeacherAssignmentController extends Controller
 {
@@ -124,7 +124,7 @@ class TeacherAssignmentController extends Controller
             ->where('teacher_id', $teacher->id)
             ->pluck('class_id')
             ->unique();
-        $classes = \App\Models\Class_::whereIn('id', $classIds)->get();
+        $classes = SchoolClass::whereIn('id', $classIds)->get();
         return response()->json($classes);
     }
 
@@ -164,7 +164,7 @@ class TeacherAssignmentController extends Controller
         if (!$isAssigned) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        $class = \App\Models\Class_::findOrFail($id);
+        $class = SchoolClass::findOrFail($id);
         $students = $class->students()->with('user')->get();
         return response()->json($students);
     }

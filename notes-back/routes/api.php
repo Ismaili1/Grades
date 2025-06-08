@@ -11,7 +11,7 @@ use App\Http\Controllers\API\TeacherAssignmentController;
 use App\Http\Middleware\CheckRole;
 use App\Models\User;
 use App\Models\Subject;
-use App\Models\Class_; 
+use App\Models\SchoolClass;
 // ------------------------------
 // 🌐 Public Routes
 // ------------------------------
@@ -77,7 +77,7 @@ Route::middleware(['auth:sanctum', CheckRole::class . ':admin'])->get('/dashboar
     $studentsCount = User::where('role', 'étudiant')->count();
     $subjectsCount = Subject::count();
     $teachersCount = User::where('role', 'enseignant')->count();
-    $classesCount = Class_::count();
+    $classesCount = SchoolClass::count();
 
     return response()->json([
         'students' => $studentsCount,

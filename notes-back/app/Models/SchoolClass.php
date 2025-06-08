@@ -5,30 +5,34 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Subject extends Model
+class SchoolClass extends Model
 {
     use HasFactory;
+
+    protected $table = 'classes';
 
     protected $fillable = [
         'name',
     ];
 
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'class_id');
+    }
+
+
     public function teachers()
     {
         return $this->belongsToMany(Teacher::class, 'teacher_subject')
-                    ->withPivot('class_id')
+                    ->withPivot('subject_id')
                     ->withTimestamps();
     }
 
-    public function classes()
+
+    public function subjects()
     {
-        return $this->belongsToMany(SchoolClass::class, 'teacher_subject', 'subject_id', 'class_id')
+        return $this->belongsToMany(Subject::class, 'teacher_subject', 'class_id', 'subject_id')
                     ->withPivot('teacher_id')
                     ->withTimestamps();
-    }
-
-    public function grades()
-    {
-        return $this->hasMany(Grade::class);
     }
 }

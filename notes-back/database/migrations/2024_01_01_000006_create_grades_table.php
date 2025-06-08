@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('subject_id')->constrained()->onDelete('cascade');
             $table->foreignId('academic_year_id')->constrained()->onDelete('cascade');
             $table->float('grade');
+            $table->string('grading_period');
             $table->timestamps();
         });
     }

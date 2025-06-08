@@ -274,7 +274,10 @@ function TeacherDashboard() {
                 <tr key={grade.id}>
                   <td>{grade.student?.user?.name || "Inconnu"}</td>
                   <td>{grade.subject?.name || "Inconnue"}</td>
-                  <td>{grade.grade}/20</td>
+                  <td>
+                    {grade.grading_period ? `${grade.grading_period}: ` : ""}
+                    {grade.grade}/20
+                  </td>
                   <td>{formatDate(grade.updated_at)}</td>
                 </tr>
               ))}

@@ -15,6 +15,7 @@ class Grade extends Model
         'subject_id',
         'academic_year_id',
         'grade',
+        'grading_period',
     ];
 
 

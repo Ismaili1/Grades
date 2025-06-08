@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
 import "../../css/TeacherCss/GradesManagement.css";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 function GradesManagement() {
   const [loading, setLoading] = useState(true);
@@ -22,7 +23,12 @@ function GradesManagement() {
     subject_id: "",
     academic_year_id: "",
     grade: "",
+    grading_period: "",
   });
+  const [filterSubject, setFilterSubject] = useState("");
+  const [filterYear, setFilterYear] = useState("");
+  const [filterStudent, setFilterStudent] = useState("");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   useEffect(() => {
     const init = async () => {
@@ -126,7 +132,28 @@ function GradesManagement() {
     if (isNaN(grade) || grade < 0 || grade > 20) {
       throw new Error("La note doit être comprise entre 0 et 20.");
     }
+
+    // Check if a grade already exists for this student, subject, and period
+    const existingGrade = grades.find(
+      (g) =>
+        g.student_id === parseInt(formData.student_id) &&
+        g.subject_id === parseInt(formData.subject_id) &&
+        g.grading_period === formData.grading_period &&
+        g.id !== editGradeId // Exclude current grade when editing
+    );
+
+    if (existingGrade) {
+      throw new Error(
+        `Une note existe déjà pour cette période (${formData.grading_period}) pour cet élève dans cette matière.`
+      );
+    }
+
     return true;
+  };
+
+  const showFeedback = (msg) => {
+    setFeedbackMessage(msg);
+    setTimeout(() => setFeedbackMessage(""), 3000);
   };
 
   const handleFormSubmit = async (e) => {
@@ -141,20 +168,21 @@ function GradesManagement() {
           subject_id: parseInt(formData.subject_id),
           academic_year_id: parseInt(formData.academic_year_id),
           grade: parseFloat(formData.grade),
+          grading_period: formData.grading_period,
         });
-        alert("Note ajoutée avec succès !");
+        showFeedback("Note ajoutée avec succès !");
       } else if (formMode === "edit" && editGradeId) {
         await api.updateGrade(editGradeId, {
           grade: parseFloat(formData.grade),
         });
-        alert("Note mise à jour avec succès !");
+        showFeedback("Note mise à jour avec succès !");
       }
 
       resetForm();
       await fetchGradesAndBuildData(teacherId);
     } catch (err) {
       console.error("Form Submit Error:", err);
-      alert(
+      showFeedback(
         err.message ||
           "Une erreur est survenue lors de l'enregistrement de la note."
       );
@@ -171,6 +199,7 @@ function GradesManagement() {
       subject_id: "",
       academic_year_id: "",
       grade: "",
+      grading_period: "",
     });
   };
 
@@ -182,6 +211,7 @@ function GradesManagement() {
       subject_id: grade.subject.id.toString(),
       academic_year_id: grade.academic_year.id.toString(),
       grade: grade.grade.toString(),
+      grading_period: grade.grading_period,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -191,11 +221,11 @@ function GradesManagement() {
     try {
       setLoading(true);
       await api.deleteGrade(id);
-      alert("Note supprimée avec succès !");
+      showFeedback("Note supprimée avec succès !");
       await fetchGradesAndBuildData(teacherId);
     } catch (err) {
       console.error("Delete Error:", err);
-      alert(
+      showFeedback(
         err.message ||
           "Une erreur est survenue lors de la suppression de la note."
       );
@@ -209,6 +239,46 @@ function GradesManagement() {
       fetchGradesAndBuildData(teacherId);
     }
   }, [teacherId]);
+
+  // Group grades by student and subject
+  const periods = ["CC1", "CC2", "CC3", "Exam final"];
+  const gradesByStudentSubject = {};
+  grades.forEach((grade) => {
+    const studentId = grade.student?.id;
+    const subjectId = grade.subject?.id;
+    if (!studentId || !subjectId) return;
+    const key = `${studentId}-${subjectId}`;
+    if (!gradesByStudentSubject[key]) {
+      gradesByStudentSubject[key] = {
+        student: grade.student,
+        subject: grade.subject,
+        academic_year: grade.academic_year,
+        grades: {},
+      };
+    }
+    gradesByStudentSubject[key].grades[grade.grading_period] = grade;
+  });
+
+  // Filtered rows for the table
+  const filteredRows = Object.values(gradesByStudentSubject).filter((entry) => {
+    const matchSubject =
+      !filterSubject || entry.subject?.id?.toString() === filterSubject;
+    const matchYear =
+      !filterYear || entry.academic_year?.id?.toString() === filterYear;
+    const matchStudent =
+      !filterStudent || entry.student?.id?.toString() === filterStudent;
+    return matchSubject && matchYear && matchStudent;
+  });
+
+  // Unique students for the filter dropdown (from grades)
+  const studentsForFilter = Array.from(
+    new Map(
+      grades
+        .map((g) => g.student)
+        .filter(Boolean)
+        .map((s) => [s.id, s])
+    ).values()
+  );
 
   if (loading) {
     return (
@@ -234,24 +304,57 @@ function GradesManagement() {
 
   return (
     <div className="gestion-notes-container">
-      <h2>Gestion des notes</h2>
-
-      <section className="form-section">
-        <h3>{formMode === "add" ? "Ajouter une note" : "Modifier une note"}</h3>
+      {feedbackMessage && (
+        <div className="feedback-message">{feedbackMessage}</div>
+      )}
+      <div
+        className="grades-header"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <h2>Gestion des notes</h2>
         <button
           className="ajouter-toggle-button"
-          onClick={() => setShowForm((prev) => !prev)}
-          disabled={formMode === "edit"}
+          onClick={() => {
+            setShowForm((prev) => !prev);
+            setFormMode("add");
+            setEditGradeId(null);
+            setFormData({
+              student_id: "",
+              subject_id: "",
+              academic_year_id: "",
+              grade: "",
+              grading_period: "",
+            });
+          }}
+          disabled={showForm && formMode === "edit"}
           style={{
-            marginBottom: "1rem",
-            width: "100%",
-            padding: "1rem",
+            minWidth: "180px",
+            padding: "0.75rem 1.5rem",
             fontWeight: "bold",
+            fontSize: "1rem",
+            borderRadius: "8px",
+            background: "linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%)",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer",
           }}
         >
-          {showForm ? "Fermer le formulaire" : "Ajouter"}
+          {showForm && formMode === "add"
+            ? "Fermer le formulaire"
+            : "Ajouter une note"}
         </button>
-        {showForm && (
+      </div>
+
+      {showForm && (
+        <section className="form-section" style={{ marginBottom: "2rem" }}>
+          <h3>
+            {formMode === "add" ? "Ajouter une note" : "Modifier une note"}
+          </h3>
           <form onSubmit={handleFormSubmit} className="grade-form">
             <div className="form-row">
               <label>Classe :</label>
@@ -334,6 +437,22 @@ function GradesManagement() {
               </select>
             </div>
             <div className="form-row">
+              <label>Période d'évaluation :</label>
+              <select
+                name="grading_period"
+                value={formData.grading_period}
+                onChange={handleFormChange}
+                required
+                disabled={isSubmitting}
+              >
+                <option value="">-- Sélectionnez une période --</option>
+                <option value="CC1">CC1</option>
+                <option value="CC2">CC2</option>
+                <option value="CC3">CC3</option>
+                <option value="Exam final">Exam final</option>
+              </select>
+            </div>
+            <div className="form-row">
               <label>Note (/20) :</label>
               <input
                 type="number"
@@ -359,23 +478,63 @@ function GradesManagement() {
                   ? "Ajouter"
                   : "Mettre à jour"}
               </button>
-              {formMode === "edit" && (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="cancel-button"
-                  disabled={isSubmitting}
-                >
-                  Annuler
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  resetForm();
+                }}
+                className="cancel-button"
+                disabled={isSubmitting}
+                style={{ marginLeft: "1rem" }}
+              >
+                Annuler
+              </button>
             </div>
           </form>
-        )}
-      </section>
+        </section>
+      )}
 
       <section className="grades-list">
         <h3>Liste des notes</h3>
+        <div
+          className="grades-filters"
+          style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}
+        >
+          <select
+            value={filterSubject}
+            onChange={(e) => setFilterSubject(e.target.value)}
+          >
+            <option value="">Toutes les matières</option>
+            {subjects.map((item) => (
+              <option key={item.subject.id} value={item.subject.id}>
+                {item.subject.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterYear}
+            onChange={(e) => setFilterYear(e.target.value)}
+          >
+            <option value="">Toutes les années</option>
+            {uniqueAcademicYears.map((ay) => (
+              <option key={ay.id} value={ay.id}>
+                {ay.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterStudent}
+            onChange={(e) => setFilterStudent(e.target.value)}
+          >
+            <option value="">Tous les étudiants</option>
+            {studentsForFilter.map((stu) => (
+              <option key={stu.id} value={stu.id}>
+                {stu.user?.name}
+              </option>
+            ))}
+          </select>
+        </div>
         {grades.length === 0 ? (
           <p className="no-grades">Aucune note enregistrée.</p>
         ) : (
@@ -385,33 +544,50 @@ function GradesManagement() {
                 <th>Élève</th>
                 <th>Matière</th>
                 <th>Année</th>
-                <th>Note</th>
-                <th>Actions</th>
+                {periods.map((period) => (
+                  <th key={period}>{period}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {grades.map((grade) => (
-                <tr key={grade.id}>
-                  <td>{grade.student?.user?.name || "Inconnu"}</td>
-                  <td>{grade.subject?.name || "Inconnue"}</td>
-                  <td>{grade.academic_year?.label || "Inconnue"}</td>
-                  <td>{grade.grade}/20</td>
-                  <td>
-                    <button
-                      onClick={() => handleEditClick(grade)}
-                      className="edit-button"
-                      disabled={isSubmitting}
-                    >
-                      Modifier
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(grade.id)}
-                      className="delete-button"
-                      disabled={isSubmitting}
-                    >
-                      Supprimer
-                    </button>
-                  </td>
+              {filteredRows.map((entry, idx) => (
+                <tr key={idx}>
+                  <td>{entry.student?.user?.name || "Inconnu"}</td>
+                  <td>{entry.subject?.name || "Inconnue"}</td>
+                  <td>{entry.academic_year?.label || "Inconnue"}</td>
+                  {periods.map((period) => (
+                    <td key={period}>
+                      {entry.grades[period] ? (
+                        <div className="grade-period-cell">
+                          <span>{entry.grades[period].grade}/20</span>
+                          <div className="grade-period-actions">
+                            <button
+                              onClick={() =>
+                                handleEditClick(entry.grades[period])
+                              }
+                              className="icon-button edit-icon"
+                              disabled={isSubmitting}
+                              title="Modifier"
+                            >
+                              <FiEdit />
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleDeleteClick(entry.grades[period].id)
+                              }
+                              className="icon-button delete-icon"
+                              disabled={isSubmitting}
+                              title="Supprimer"
+                            >
+                              <FiTrash2 />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>

@@ -1,101 +1,101 @@
-<<<<<<< Updated upstream
-=======
-.gestion-notes {
-  padding: 30px;
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  margin-left: 240px;
-}
-
-.header {
+.grade-period-cell {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.grade-period-cell .edit-button,
+.grade-period-cell .delete-button {
+  margin: 2px 0;
+  width: 90px;
 }
 
-.header h2 {
-  font-size: 24px;
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-.add-button {
-  padding: 10px 20px;
-  background: linear-gradient(to right, #7b61ff, #8753c6);
+.icon-button {
+  background: none;
   border: none;
-  color: white;
-  border-radius: 8px;
-  font-weight: bold;
+  padding: 4px;
+  margin: 0;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  font-size: 1.1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.icon-button.edit-icon {
+  color: #f59e0b; /* orange-400 */
+}
+.icon-button.delete-icon {
+  color: #ef4444; /* red-500 */
+}
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.icon-button:hover:not(:disabled) {
+  background: #f3f4f6;
 }
 
-.add-button:hover {
-  opacity: 0.9;
+.grade-period-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  margin-top: 2px;
 }
 
-.notes-table {
+.feedback-message {
+  background: linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%);
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  animation: fadeInOut 3s linear;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.grades-list {
   width: 100%;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  padding: 0;
+  margin: 0;
+}
+
+.grades-table {
+  width: 100%;
+  min-width: 0;
   border-collapse: collapse;
-  background-color: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  table-layout: auto;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
 }
 
-.notes-table thead {
-  background: linear-gradient(to right, #6c63ff, #8753c6);
-  color: white;
-}
-
-.notes-table th,
-.notes-table td {
-  padding: 15px 20px;
+.grades-table th,
+.grades-table td {
+  white-space: nowrap;
+  padding: 0.75rem 1rem;
   text-align: left;
 }
 
-.notes-table tbody tr {
-  border-bottom: 1px solid #eee;
+.grades-table thead {
+  background: linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%);
+  color: #fff;
 }
-
-.notes-table tbody tr:last-child {
-  border-bottom: none;
-}
-
-.notes-table td {
-  font-size: 14px;
-}
-
-.notes-table td:nth-child(3) {
-  font-weight: bold;
-}
-
-.edit,
-.delete {
-  border: none;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  margin-right: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.edit {
-  background-color: #00bcd4;
-}
-
-.edit:hover {
-  background-color: #00acc1;
-}
-
-.delete {
-  background-color: #e74c3c;
-}
-
-.delete:hover {
-  background-color: #c0392b;
-}
->>>>>>> Stashed changes

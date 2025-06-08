@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Class_;
+use App\Models\SchoolClass;
 
 class ClassController extends Controller
 {
@@ -13,12 +13,12 @@ class ClassController extends Controller
 
     // public function index()
     // {
-    //     $classes = Class_::all();
+    //     $classes = SchoolClass::all();
     //     return response()->json($classes);
     // }
     public function index()
 {
-    $classes = Class_::withCount('students')->get();
+    $classes = SchoolClass::withCount('students')->get();
     return response()->json($classes);
 }
 
@@ -30,7 +30,7 @@ class ClassController extends Controller
             'name' => 'required|string|max:50|unique:classes',
         ]);
 
-        $class = Class_::create([
+        $class = SchoolClass::create([
             'name' => $request->name,
         ]);
 
@@ -45,7 +45,7 @@ class ClassController extends Controller
 
     public function show($id)
     {
-        $class = Class_::with('students.user')->findOrFail($id);
+        $class = SchoolClass::with('students.user')->findOrFail($id);
         return response()->json($class);
     }
 
@@ -54,7 +54,7 @@ class ClassController extends Controller
 
     public function update(Request $request, $id)
     {
-        $class = Class_::findOrFail($id);
+        $class = SchoolClass::findOrFail($id);
 
         $request->validate([
             'name' => 'required|string|max:50|unique:classes,name,' . $id,
@@ -74,7 +74,7 @@ class ClassController extends Controller
 
     public function destroy($id)
     {
-        $class = Class_::findOrFail($id);
+        $class = SchoolClass::findOrFail($id);
         $class->delete();
 
         return response()->json([
@@ -86,7 +86,7 @@ class ClassController extends Controller
 
     public function students($id)
     {
-        $class = Class_::findOrFail($id);
+        $class = SchoolClass::findOrFail($id);
         $students = $class->students()->with('user')->get();
         
         return response()->json($students);
@@ -97,7 +97,7 @@ class ClassController extends Controller
 
     public function subjects($id)
     {
-        $class = Class_::findOrFail($id);
+        $class = SchoolClass::findOrFail($id);
         $subjects = $class->subjects()->with('teachers.user')->get();
         
         return response()->json($subjects);

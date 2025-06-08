@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use App\Models\Class_;
+use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\AcademicYear;
 use App\Models\Teacher;
@@ -19,8 +19,8 @@ class DatabaseSeeder extends Seeder
     {
         AcademicYear::create(['label' => '2023-2024']);
         
-        $classe1 = Class_::create(['name' => 'Terminal S']);
-        $classe2 = Class_::create(['name' => 'Terminal ES']);
+        $classe1 = SchoolClass::create(['name' => 'Terminal S']);
+        $classe2 = SchoolClass::create(['name' => 'Terminal ES']);
         
         $maths = Subject::create(['name' => 'Mathématiques']);
         $physique = Subject::create(['name' => 'Physique-Chimie']);

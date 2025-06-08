@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Class_ extends Model
+class SchoolClass extends Model
 {
     use HasFactory;
 
@@ -31,7 +31,7 @@ class Class_ extends Model
 
     public function subjects()
     {
-        return $this->belongsToMany(Subject::class, 'teacher_subject', 'class__id', 'subject_id')
+        return $this->belongsToMany(Subject::class, 'teacher_subject', 'class_id', 'subject_id')
                     ->withPivot('teacher_id')
                     ->withTimestamps();
     }
