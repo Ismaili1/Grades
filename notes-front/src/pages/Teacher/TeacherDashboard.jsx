@@ -18,8 +18,11 @@ function TeacherDashboard() {
   const [recentActivities, setRecentActivities] = useState([]);
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [gradeChartData, setGradeChartData] = useState([]);
-  const [classComparisonData, setClassComparisonData] = useState([]);
+  const [gradeDistribution, setGradeDistribution] = useState([]);
+  const [topBottomScorers, setTopBottomScorers] = useState({
+    top: [],
+    bottom: [],
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,41 +53,51 @@ function TeacherDashboard() {
           throw new Error("Format de données invalide reçu du serveur.");
         }
 
-        // Données pour histogramme des notes par matière
-        const gradeDistribution = {};
-        const classAverage = {};
-
-        teacherGrades.forEach((g) => {
-          const subjectName = g.subject?.name || "Inconnue";
-          gradeDistribution[subjectName] =
-            (gradeDistribution[subjectName] || 0) + 1;
-
-          const className = g.student?.class?.name || "Inconnue";
-          if (!classAverage[className]) {
-            classAverage[className] = { total: 0, count: 0 };
-          }
-          classAverage[className].total += g.grade;
-          classAverage[className].count += 1;
+        // Grade Distribution
+        const gradeRanges = { "0-5": 0, "6-10": 0, "11-15": 0, "16-20": 0 };
+        teacherGrades.forEach(({ grade }) => {
+          if (grade >= 0 && grade <= 5) gradeRanges["0-5"]++;
+          else if (grade <= 10) gradeRanges["6-10"]++;
+          else if (grade <= 15) gradeRanges["11-15"]++;
+          else if (grade <= 20) gradeRanges["16-20"]++;
         });
 
-        const gradeChart = Object.entries(gradeDistribution).map(
-          ([subject, count]) => ({
-            subject,
+        setGradeDistribution(
+          Object.entries(gradeRanges).map(([range, count]) => ({
+            range,
             count,
+          }))
+        );
+
+        // Top & Bottom Scorers
+        const studentStats = {};
+        teacherGrades.forEach(({ grade, student }) => {
+          const id = student?.id;
+          const name = student?.user?.name || "Inconnu";
+          if (!id) return;
+
+          if (!studentStats[id])
+            studentStats[id] = { name, total: 0, count: 0 };
+          studentStats[id].total += grade;
+          studentStats[id].count++;
+        });
+
+        const averages = Object.entries(studentStats).map(
+          ([id, { name, total, count }]) => ({
+            id,
+            name,
+            average: count ? (total / count).toFixed(2) : "-",
           })
         );
 
-        const classChart = Object.entries(classAverage).map(
-          ([className, data]) => ({
-            className,
-            average: (data.total / data.count).toFixed(2),
-          })
-        );
+        averages.sort((a, b) => b.average - a.average);
 
-        setGradeChartData(gradeChart);
-        setClassComparisonData(classChart);
+        setTopBottomScorers({
+          top: averages.slice(0, 3),
+          bottom: averages.slice(-3).reverse(),
+        });
 
-        // Activité récente
+        // Recent Activities
         const last5 = [...teacherGrades]
           .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
           .slice(0, 5);
@@ -120,9 +133,7 @@ function TeacherDashboard() {
 
   if (loading) {
     return (
-      <div className="dashboard-loading">
-        <p>Chargement du tableau de bord…</p>
-      </div>
+      <div className="dashboard-loading">Chargement du tableau de bord…</div>
     );
   }
 
@@ -144,34 +155,72 @@ function TeacherDashboard() {
     <div className="dashboard-container">
       <h2>Tableau de bord – Enseignant</h2>
 
-      {/* Distribution des notes  */}
+      {/* Grade Distribution Histogram */}
       <section className="chart-section">
-        <h3>Distribution des notes par matière</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={gradeChartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="subject" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="count" fill="#8884d8" name="Nombre de notes" />
-          </BarChart>
-        </ResponsiveContainer>
+        <h3>Distribution des notes</h3>
+        {gradeDistribution.length === 0 ? (
+          <p style={{ color: "#888" }}>
+            Aucune donnée de distribution disponible.
+          </p>
+        ) : (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={gradeDistribution}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="range" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="count" fill="#8884d8" name="Nombre d'élèves" />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </section>
 
-      {/*Comparaison des moyennes par classe */}
+      {/* Top & Bottom Scorers */}
       <section className="chart-section">
-        <h3>Comparaison des moyennes par classe</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={classComparisonData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="className" />
-            <YAxis domain={[0, 20]} />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="average" fill="#82ca9d" name="Moyenne /20" />
-          </BarChart>
-        </ResponsiveContainer>
+        <h3>Performance des élèves (Top 3 & Flop 3)</h3>
+        <div className="student-performance-summary">
+          <div className="performance-columns">
+            <div>
+              <h4>Top 3</h4>
+              <table className="performance-table">
+                <thead>
+                  <tr>
+                    <th>Élève</th>
+                    <th>Moyenne</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topBottomScorers.top.map((s) => (
+                    <tr key={s.id}>
+                      <td>{s.name}</td>
+                      <td>{s.average}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <h4>Flop 3</h4>
+              <table className="performance-table">
+                <thead>
+                  <tr>
+                    <th>Élève</th>
+                    <th>Moyenne</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topBottomScorers.bottom.map((s) => (
+                    <tr key={s.id}>
+                      <td>{s.name}</td>
+                      <td>{s.average}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Mes classes */}
@@ -197,7 +246,7 @@ function TeacherDashboard() {
           <ul>
             {subjects.map((item, idx) => (
               <li key={idx}>
-                {item.subject.name} (Classes:{" "}
+                {item.subject.name} (Classes :{" "}
                 {item.classes.map((c) => c.name).join(", ")})
               </li>
             ))}
@@ -216,8 +265,8 @@ function TeacherDashboard() {
               <tr>
                 <th>Élève</th>
                 <th>Matière</th>
-                <th>Note actuelle</th>
-                <th>Mis à jour le</th>
+                <th>Note</th>
+                <th>Mis à jour</th>
               </tr>
             </thead>
             <tbody>

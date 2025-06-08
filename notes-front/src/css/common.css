@@ -1,0 +1,48 @@
+body {
+  font-family: "Segoe UI", sans-serif;
+  background-color: #f8f9fc;
+  margin: 0;
+  color: #333;
+}
+
+h2,
+h3,
+h4 {
+  margin-bottom: 0.5rem;
+  color: #1f2937;
+}
+
+ul {
+  padding-left: 1.2rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+button {
+  background-color: #6366f1;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background-color: #4f46e5;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+}

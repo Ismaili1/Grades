@@ -23,7 +23,10 @@ function Layout() {
   return (
     <div style={{ display: "flex" }}>
       <Sidebar user={user} onLogout={handleLogout} />
-      <div style={{ flex: 1, padding: "20px" }}>
+      <div
+        className="main-content-with-sidebar"
+        style={{ flex: 1, padding: "20px" }}
+      >
         <Outlet />
       </div>
     </div>

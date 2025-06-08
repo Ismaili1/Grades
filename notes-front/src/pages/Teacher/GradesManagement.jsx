@@ -16,6 +16,7 @@ function GradesManagement() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formMode, setFormMode] = useState("add");
   const [editGradeId, setEditGradeId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     student_id: "",
     subject_id: "",
@@ -82,6 +83,10 @@ function GradesManagement() {
     setFormData((prev) => ({ ...prev, student_id: "" }));
   }, [selectedSubjectId]);
 
+  useEffect(() => {
+    if (formMode === "edit") setShowForm(true);
+  }, [formMode]);
+
   // Filtre des matieres pour la classe selectionnée
   const filteredSubjects = selectedClassId
     ? subjects.filter((item) =>
@@ -102,7 +107,6 @@ function GradesManagement() {
       }
 
       setGrades(teacherGrades);
-      buildDropdownData(teacherGrades);
     } catch (err) {
       console.error("Data Fetch Error:", err);
       setError(err.message || "Erreur lors de la récupération des notes.");
@@ -200,6 +204,12 @@ function GradesManagement() {
     }
   };
 
+  useEffect(() => {
+    if (teacherId) {
+      fetchGradesAndBuildData(teacherId);
+    }
+  }, [teacherId]);
+
   if (loading) {
     return (
       <div className="grades-loading">
@@ -228,120 +238,140 @@ function GradesManagement() {
 
       <section className="form-section">
         <h3>{formMode === "add" ? "Ajouter une note" : "Modifier une note"}</h3>
-        <form onSubmit={handleFormSubmit} className="grade-form">
-          <div className="form-row">
-            <label>Classe :</label>
-            <select
-              value={selectedClassId}
-              onChange={(e) => setSelectedClassId(e.target.value)}
-              required
-              disabled={formMode === "edit" || isSubmitting}
-            >
-              <option value="">-- Sélectionnez une classe --</option>
-              {classes.map((classe) => (
-                <option key={classe.id} value={classe.id}>
-                  {classe.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-row">
-            <label>Matière :</label>
-            <select
-              name="subject_id"
-              value={formData.subject_id}
-              onChange={(e) => {
-                setSelectedSubjectId(e.target.value);
-                handleFormChange(e);
-              }}
-              required
-              disabled={!selectedClassId || formMode === "edit" || isSubmitting}
-            >
-              <option value="">-- Sélectionnez une matière --</option>
-              {filteredSubjects.map((item) => (
-                <option key={item.subject.id} value={item.subject.id}>
-                  {item.subject.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-row">
-            <label>Élève :</label>
-            <select
-              name="student_id"
-              value={formData.student_id}
-              onChange={handleFormChange}
-              required
-              disabled={
-                !selectedClassId ||
-                !formData.subject_id ||
-                formMode === "edit" ||
-                isSubmitting
-              }
-            >
-              <option value="">-- Sélectionnez un élève --</option>
-              {filteredStudents.map((stu) => (
-                <option key={stu.id} value={stu.id}>
-                  {stu.user?.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-row">
-            <label>Année scolaire :</label>
-            <select
-              name="academic_year_id"
-              value={formData.academic_year_id}
-              onChange={handleFormChange}
-              required
-              disabled={formMode === "edit" || isSubmitting}
-            >
-              <option value="">-- Sélectionnez une année --</option>
-              {uniqueAcademicYears.map((ay) => (
-                <option key={ay.id} value={ay.id}>
-                  {ay.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-row">
-            <label>Note (/20) :</label>
-            <input
-              type="number"
-              name="grade"
-              value={formData.grade}
-              onChange={handleFormChange}
-              min="0"
-              max="20"
-              step="0.1"
-              required
-              disabled={isSubmitting}
-            />
-          </div>
-          <div className="form-actions">
-            <button
-              type="submit"
-              className="submit-button"
-              disabled={isSubmitting}
-            >
-              {isSubmitting
-                ? "Enregistrement..."
-                : formMode === "add"
-                ? "Ajouter"
-                : "Mettre à jour"}
-            </button>
-            {formMode === "edit" && (
+        <button
+          className="ajouter-toggle-button"
+          onClick={() => setShowForm((prev) => !prev)}
+          disabled={formMode === "edit"}
+          style={{
+            marginBottom: "1rem",
+            width: "100%",
+            padding: "1rem",
+            fontWeight: "bold",
+          }}
+        >
+          {showForm ? "Fermer le formulaire" : "Ajouter"}
+        </button>
+        {showForm && (
+          <form onSubmit={handleFormSubmit} className="grade-form">
+            <div className="form-row">
+              <label>Classe :</label>
+              <div className="radio-group">
+                {classes.map((classe) => (
+                  <label key={classe.id} style={{ marginRight: "1rem" }}>
+                    <input
+                      type="radio"
+                      name="class_id"
+                      value={classe.id}
+                      checked={selectedClassId === classe.id.toString()}
+                      onChange={(e) => setSelectedClassId(e.target.value)}
+                      disabled={formMode === "edit" || isSubmitting}
+                      required
+                    />
+                    {classe.name}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="form-row">
+              <label>Matière :</label>
+              <select
+                name="subject_id"
+                value={formData.subject_id}
+                onChange={(e) => {
+                  setSelectedSubjectId(e.target.value);
+                  handleFormChange(e);
+                }}
+                required
+                disabled={
+                  !selectedClassId || formMode === "edit" || isSubmitting
+                }
+              >
+                <option value="">-- Sélectionnez une matière --</option>
+                {filteredSubjects.map((item) => (
+                  <option key={item.subject.id} value={item.subject.id}>
+                    {item.subject.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-row">
+              <label>Élève :</label>
+              <select
+                name="student_id"
+                value={formData.student_id}
+                onChange={handleFormChange}
+                required
+                disabled={
+                  !selectedClassId ||
+                  !formData.subject_id ||
+                  formMode === "edit" ||
+                  isSubmitting
+                }
+              >
+                <option value="">-- Sélectionnez un élève --</option>
+                {filteredStudents.map((stu) => (
+                  <option key={stu.id} value={stu.id}>
+                    {stu.user?.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-row">
+              <label>Année scolaire :</label>
+              <select
+                name="academic_year_id"
+                value={formData.academic_year_id}
+                onChange={handleFormChange}
+                required
+                disabled={formMode === "edit" || isSubmitting}
+              >
+                <option value="">-- Sélectionnez une année --</option>
+                {uniqueAcademicYears.map((ay) => (
+                  <option key={ay.id} value={ay.id}>
+                    {ay.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-row">
+              <label>Note (/20) :</label>
+              <input
+                type="number"
+                name="grade"
+                value={formData.grade}
+                onChange={handleFormChange}
+                min="0"
+                max="20"
+                step="0.1"
+                required
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="form-actions">
               <button
-                type="button"
-                onClick={resetForm}
-                className="cancel-button"
+                type="submit"
+                className="submit-button"
                 disabled={isSubmitting}
               >
-                Annuler
+                {isSubmitting
+                  ? "Enregistrement..."
+                  : formMode === "add"
+                  ? "Ajouter"
+                  : "Mettre à jour"}
               </button>
-            )}
-          </div>
-        </form>
+              {formMode === "edit" && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="cancel-button"
+                  disabled={isSubmitting}
+                >
+                  Annuler
+                </button>
+              )}
+            </div>
+          </form>
+        )}
       </section>
 
       <section className="grades-list">
