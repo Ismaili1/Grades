@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
-import "../../css/TeacherDashboard.css";
+import "../../css/TeacherCss/TeacherDashboard.css";
 import {
   BarChart,
   Bar,

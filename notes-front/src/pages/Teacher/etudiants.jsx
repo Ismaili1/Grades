@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
-import "../../css/etudiants.css";
+import "../../css/TeacherCss/etudiants.css";
 
 function MesEtudiants() {
   const [loading, setLoading] = useState(true);
