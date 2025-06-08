@@ -5,6 +5,7 @@
   margin: 0 auto;
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin-left: 310px;
 }
 
 .edit-teacher-header {
@@ -180,4 +181,97 @@
   .save-button {
     width: 100%;
   }
+}
+
+/* EditTeacher.css - Radio Button Styles */
+
+/* Base styles for the radio buttons container */
+.subjects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.subject-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+/* Hide the default radio button */
+.subject-radio input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Custom radio button */
+.subject-radio label {
+  position: relative;
+  padding-left: 2rem;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  min-height: 1.5rem;
+}
+
+/* Outer circle */
+.subject-radio label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid #4a6fa5;
+  border-radius: 50%;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+/* Inner circle (checked state) */
+.subject-radio input[type="radio"]:checked + label::after {
+  content: '';
+  position: absolute;
+  left: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background-color: #4a6fa5;
+}
+
+/* Hover effect */
+.subject-radio label:hover::before {
+  border-color: #3a5a8c;
+  box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+}
+
+/* Focus state */
+.subject-radio input[type="radio"]:focus + label::before {
+  box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.3);
+}
+
+/* Disabled state */
+.subject-radio input[type="radio"]:disabled + label {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.subject-radio input[type="radio"]:disabled + label::before {
+  border-color: #ddd;
+  background-color: #f5f5f5;
+}
+
+/* No subjects message */
+.no-subjects-message {
+  color: #666;
+  font-style: italic;
+  margin-top: 0.5rem;
 }

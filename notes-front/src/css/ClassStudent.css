@@ -1,14 +1,14 @@
-/* ClassStudent.css - Matching Admin Dashboard Theme */
-
+/* ClassStudent.css - Optimized Version */
 .class-students-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
   border: 1px solid rgba(102, 126, 234, 0.1);
   animation: slideUp 0.8s ease-out;
+  margin-left: 240px;
 }
 
 .class-students-container h2 {
@@ -33,183 +33,6 @@
   border-radius: 3px;
 }
 
-.students-list {
-  list-style: none;
-  padding: 0;
-  margin-top: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.student-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.2rem 1.5rem;
-  background: #f8fafc;
-  border-radius: 12px;
-  border-left: 4px solid #667eea;
-  transition: all 0.3s ease;
-}
-
-.student-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.1);
-}
-
-.student-item div {
-  flex: 1;
-}
-
-.student-item strong {
-  color: #2d3748;
-  font-weight: 600;
-  margin-right: 0.5rem;
-}
-
-.delete-btn {
-  padding: 0.5rem 1rem;
-  background: #fed7d7;
-  color: #c53030;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  white-space: nowrap;
-}
-
-.delete-btn:hover {
-  background: #feb2b2;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.empty-message {
-  text-align: center;
-  color: #718096;
-  padding: 2rem;
-  font-size: 1.1rem;
-  background: #f8fafc;
-  border-radius: 12px;
-  margin-top: 1rem;
-}
-
-.error-message {
-  color: #c53030;
-  background: #fed7d7;
-  padding: 1rem;
-  border-radius: 8px;
-  text-align: center;
-  margin: 1.5rem 0;
-  border-left: 4px solid #c53030;
-}
-
-.loading-message {
-  text-align: center;
-  color: #667eea;
-  padding: 2rem;
-  font-size: 1.1rem;
-}
-
-/* Reuse animation from theme */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .class-students-container {
-    padding: 1.5rem;
-    margin: 1rem;
-    border-radius: 12px;
-  }
-  
-  .student-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-  }
-  
-  .delete-btn {
-    align-self: flex-end;
-  }
-}
-
-@media (max-width: 480px) {
-  .class-students-container {
-    padding: 1rem;
-  }
-  
-  .class-students-container h2 {
-    font-size: 1.5rem;
-  }
-  
-  .student-item div {
-    font-size: 0.9rem;
-  }
-  
-  .delete-btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-  }
-}
-
-.student-item div {
-  flex: 1;
-  color: #2d3748; /* This sets the default text color */
-}
-
-.student-item strong {
-  color: #2d3748; /* Color for the labels (Nom:, Email:) */
-  font-weight: 600;
-  margin-right: 0.5rem;
-}
-
-.assign-teacher-btn {
-  margin-bottom: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #1a73e8;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.assign-form {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-.assign-form select,
-.assign-form button {
-  display: block;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-}
-/* ClassStudent.css */
-
-.class-students-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
 .loading-message, .error-message, .empty-message {
   text-align: center;
   padding: 20px;
@@ -221,6 +44,11 @@
   background-color: #f8d7da;
   border: 1px solid #f5c6cb;
   border-radius: 4px;
+}
+
+.empty-message {
+  color: #6c757d;
+  font-style: italic;
 }
 
 .assign-teacher-btn {
@@ -281,11 +109,6 @@
   font-size: 14px;
 }
 
-.no-subjects {
-  color: #6c757d;
-  font-style: italic;
-}
-
 .subjects-list h5 {
   margin: 15px 0 10px 0;
   color: #333;
@@ -340,6 +163,10 @@
 .students-list {
   list-style: none;
   padding: 0;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .student-item {
@@ -355,6 +182,13 @@
 
 .student-item div {
   flex: 1;
+  color: #2d3748;
+}
+
+.student-item strong {
+  color: #2d3748;
+  font-weight: 600;
+  margin-right: 0.5rem;
 }
 
 .delete-btn {
@@ -370,25 +204,7 @@
   background-color: #c82333;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .teachers-list {
-    grid-template-columns: 1fr;
-  }
-  
-  .student-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .delete-btn {
-    align-self: flex-end;
-  }
-}
-
-
-/* Teachers and Subjects Table CSS */
+/* Teachers and Subjects Table */
 .teachers-section {
   margin: 2rem 0;
   padding: 1.5rem;
@@ -396,7 +212,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
   border: 1px solid #e2e8f0;
-  overflow-x: auto; /* Allows horizontal scrolling on small screens */
+  overflow-x: auto;
 }
 
 .teachers-section h3 {
@@ -444,19 +260,42 @@
   color: #2d3748;
 }
 
-.empty-message {
-  color: #718096;
-  font-size: 0.9rem;
-  font-style: italic;
-  padding: 1rem;
-  text-align: center;
-  background: #f8fafc;
-  border-radius: 8px;
-  margin-top: 1rem;
+/* Animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .class-students-container {
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 12px;
+    margin-left: 0;
+  }
+  
+  .teachers-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .student-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .delete-btn {
+    align-self: flex-end;
+  }
+  
   .subjects-table {
     display: block;
   }
@@ -483,5 +322,24 @@
     color: #2d3748;
     display: inline-block;
     width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .class-students-container {
+    padding: 1rem;
+  }
+  
+  .class-students-container h2 {
+    font-size: 1.5rem;
+  }
+  
+  .student-item div {
+    font-size: 0.9rem;
+  }
+  
+  .delete-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
   }
 }

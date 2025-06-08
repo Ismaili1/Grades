@@ -14,20 +14,27 @@ class UserController extends Controller
 {
     // Afficher la liste des users.
 
-    public function index(Request $request)
-    {
-        $role = $request->input('role');
+public function index(Request $request)
+{
+    $role = $request->input('role');
+    
+    $query = User::query();
+    
+    if ($role) {
+        $query->where('role', $role);
         
-        $query = User::query();
-        
-        if ($role) {
-            $query->where('role', $role);
+        // Add this line to load relationships based on role
+        if ($role === 'étudiant') {
+            $query->with(['student.class']);
+        } elseif ($role === 'enseignant') {
+            $query->with(['teacher.subjects']);
         }
-        
-        $users = $query->paginate(10);
-        
-        return response()->json($users);
     }
+    
+    $users = $query->paginate(10);
+    
+    return response()->json($users);
+ }
 
     // creer un nouveau user.
 

@@ -1,229 +1,126 @@
-/* Root container */
-.dashboard-container {
-  padding: 2.5rem 2rem 2rem 2rem;
+<<<<<<< Updated upstream
+=======
+/* src/css/TeacherCss/TeacherDashboard.css */
+
+.teacher-dashboard {
+  padding: 2rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
   min-height: 100vh;
-  background: #f6f8fb;
-  color: #22223b;
-  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  color: #222;
+  margin-left: 240px;
 }
 
-.dashboard-container h2 {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #22223b;
-  margin-bottom: 2.5rem;
-  letter-spacing: -1px;
+.dashboard-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #1a202c;
 }
 
-.dashboard-container section {
-  background: #fff;
-  border-radius: 18px;
-  padding: 2rem 2.5rem;
-  margin-bottom: 2.2rem;
-  box-shadow: 0 2px 16px 0 rgba(60, 72, 88, 0.07);
-  border: 1px solid #f0f1f6;
-}
-
-.dashboard-container h3 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 1.2rem;
-  color: #22223b;
-}
-
-.dashboard-container h4 {
-  font-size: 1.08rem;
-  margin-bottom: 0.5rem;
-  color: #4a4e69;
-  font-weight: 600;
-}
-
-/* Stat cards */
-.stat-cards {
+.stats-container {
   display: flex;
-  flex-wrap: wrap;
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .stat-card {
   flex: 1;
-  min-width: 220px;
-  background-color: #f3f4f6;
-  padding: 1rem 1.25rem;
+  background: #ffffff;
+  padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.stat-card h4 {
-  font-size: 0.95rem;
-  color: #6b7280;
-  margin-bottom: 0.4rem;
-}
-
-.stat-card .value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
-}
-
-.stat-card.blue {
-  background-color: #e0f2fe;
-}
-.stat-card.green {
-  background-color: #dcfce7;
-}
-.stat-card.violet {
-  background-color: #ede9fe;
-}
-
-/* Chart */
-.chart-section {
-  height: auto;
-}
-
-/* Performance comparison section */
-.performance-columns {
-  display: flex;
-  gap: 2.5rem;
-  flex-wrap: wrap;
-}
-
-.performance-columns > div {
-  flex: 1;
-  min-width: 240px;
-}
-
-.performance-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #f8fafd;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 1px 4px 0 rgba(60, 72, 88, 0.04);
-}
-
-.performance-table th,
-.performance-table td {
-  padding: 0.7rem 1rem;
-  text-align: left;
-  font-size: 1rem;
-}
-
-.performance-table th {
-  background: #f1f5fa;
-  color: #495057;
-  font-weight: 600;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.performance-table td {
-  color: #495057;
-  border-bottom: 1px solid #f0f1f6;
-}
-
-/* Lists */
-.teacher-classes-section ul,
-.teacher-subjects-section ul {
-  padding-left: 1.2rem;
-  list-style: disc;
-  color: #495057;
-}
-
-.teacher-classes-section li,
-.teacher-subjects-section li {
-  margin-bottom: 0.4rem;
-  font-size: 1rem;
-}
-
-/* Recent activity */
-.recent-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #f8fafd;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 1px 4px 0 rgba(60, 72, 88, 0.04);
-  margin-top: 1rem;
-}
-
-.recent-table th,
-.recent-table td {
-  padding: 0.7rem 1rem;
-  font-size: 1rem;
-}
-
-.recent-table th {
-  background: #f1f5fa;
-  color: #495057;
-  font-weight: 600;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.recent-table td {
-  color: #495057;
-  border-bottom: 1px solid #f0f1f6;
-}
-
-/* Empty or error states */
-.no-activity,
-.dashboard-loading,
-.dashboard-error {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   text-align: center;
-  font-size: 1rem;
-  color: #adb5bd;
-  font-style: italic;
-  padding: 1.2rem 0;
+  transition: transform 0.2s ease;
 }
 
-.error-message {
-  color: #e63946;
+.stat-card:hover {
+  transform: translateY(-3px);
+}
+
+.stat-card h3 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #2d3748;
+}
+
+.stat-card p {
+  font-size: 0.95rem;
+  color: #718096;
+}
+
+.recent-grades {
+  margin-top: 2rem;
+}
+
+.recent-grades h3 {
+  font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 1rem;
+  color: #2d3748;
 }
 
-.retry-button {
-  background: #457b9d;
-  color: #fff;
-  padding: 0.5rem 1.2rem;
-  font-weight: 500;
-  border: none;
+.grade-item {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f8f9fb;
   border-radius: 8px;
-  cursor: pointer;
+  padding: 1rem;
+  margin-bottom: 0.8rem;
+  border-left: 4px solid #5a67d8;
   transition: background 0.2s;
 }
 
-.retry-button:hover {
-  background: #1d3557;
+.grade-item:hover {
+  background-color: #eef2f7;
 }
 
-/* Responsive layout */
-@media (max-width: 900px) {
-  .dashboard-container section {
-    padding: 1.2rem 0.7rem;
-  }
-  .performance-columns {
-    flex-direction: column;
-    gap: 1.2rem;
-  }
+.grade-info {
+  font-size: 1rem;
+  color: #2d3748;
 }
-@media (max-width: 600px) {
-  .dashboard-container {
-    padding: 1rem 0.2rem;
-  }
-  .dashboard-container h2 {
-    font-size: 1.3rem;
-  }
-  .dashboard-container section {
-    padding: 0.7rem 0.2rem;
-  }
-  th,
-  td {
-    font-size: 0.92rem;
-  }
+
+.grade-info strong {
+  font-weight: 600;
+  color: #1a202c;
 }
+
+.grade-details {
+  font-size: 0.95rem;
+  text-align: right;
+  color: #4a5568;
+}
+
+.grade-note {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #2b6cb0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  color: #718096;
+}
+
+.empty-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-message {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.empty-subtitle {
+  font-size: 0.95rem;
+  color: #718096;
+  margin-top: 0.5rem;
+}
+>>>>>>> Stashed changes

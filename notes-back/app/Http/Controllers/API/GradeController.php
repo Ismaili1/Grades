@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Models\AcademicYear;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class GradeController extends Controller
 {

@@ -85,7 +85,7 @@ function SubjectsManagement() {
   }
 
   function goBack() {
-    navigate("/admin");
+    navigate("/admin/dashboard");
   }
 
   function goToAddSubject() {

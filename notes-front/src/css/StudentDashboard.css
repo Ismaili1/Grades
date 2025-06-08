@@ -1,0 +1,522 @@
+/* StudentDashboard.css */
+
+.dashboard-container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #dbeafe, #e0e7ff);
+  padding: 1.5rem;
+  margin-left: 240px;
+}
+
+.dashboard-wrapper {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+/* Header Styles */
+.header-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-avatar {
+  background: linear-gradient(to right, #3b82f6, #4f46e5);
+  padding: 0.75rem;
+  border-radius: 9999px;
+}
+
+.user-avatar svg {
+  height: 2rem;
+  width: 2rem;
+  color: white;
+}
+
+.user-details h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.user-details p {
+  color: #6b7280;
+}
+
+.year-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.year-select {
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.year-select:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: #3b82f6;
+  border-color: transparent;
+}
+
+/* Loading Styles */
+.loading-container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #dbeafe, #e0e7ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  border-radius: 9999px;
+  height: 3rem;
+  width: 3rem;
+  border: 4px solid #3b82f6;
+  border-top-color: transparent;
+}
+
+.loading-text {
+  color: #6b7280;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Stats Cards Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stat-card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.stat-card.blue-border {
+  border-left: 4px solid #3b82f6;
+}
+
+.stat-card.green-border {
+  border-left: 4px solid #10b981;
+}
+
+.stat-card.purple-border {
+  border-left: 4px solid #8b5cf6;
+}
+
+.stat-card.yellow-border {
+  border-left: 4px solid #f59e0b;
+}
+
+.stat-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-card-info p:first-child {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.stat-card-info p:last-child {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.stat-card-icon {
+  padding: 0.75rem;
+  border-radius: 9999px;
+}
+
+.stat-card-icon.blue {
+  background: #dbeafe;
+}
+
+.stat-card-icon.green {
+  background: #d1fae5;
+}
+
+.stat-card-icon.purple {
+  background: #e9d5ff;
+}
+
+.stat-card-icon.yellow {
+  background: #fef3c7;
+}
+
+.stat-card-icon svg {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.stat-card-icon.blue svg {
+  color: #2563eb;
+}
+
+.stat-card-icon.green svg {
+  color: #059669;
+}
+
+.stat-card-icon.purple svg {
+  color: #7c3aed;
+}
+
+.stat-card-icon.yellow svg {
+  color: #d97706;
+}
+
+.performance-indicator {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.performance-indicator.excellent {
+  color: #059669;
+}
+
+.performance-indicator.tres-bien {
+  color: #2563eb;
+}
+
+.performance-indicator.bien {
+  color: #d97706;
+}
+
+.performance-indicator.assez-bien {
+  color: #ea580c;
+}
+
+.performance-indicator.a-ameliorer {
+  color: #dc2626;
+}
+
+.stat-description {
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.stat-description.blue {
+  color: #059669;
+}
+
+.stat-description.green {
+  color: #059669;
+}
+
+.stat-description.purple {
+  color: #7c3aed;
+}
+
+.stat-description.yellow {
+  color: #d97706;
+}
+
+/* Main Content Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .content-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Content Cards */
+.content-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.content-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.content-card-icon {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.content-card-icon.green {
+  background: linear-gradient(to right, #10b981, #059669);
+}
+
+.content-card-icon.purple {
+  background: linear-gradient(to right, #8b5cf6, #ec4899);
+}
+
+.content-card-icon svg {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: white;
+}
+
+.content-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* Subject Averages */
+.subject-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.subject-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.subject-item:hover {
+  background: #f3f4f6;
+}
+
+.subject-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.subject-icon {
+  background: #dbeafe;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.subject-icon svg {
+  height: 1rem;
+  width: 1rem;
+  color: #2563eb;
+}
+
+.subject-name {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.subject-grade-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Grade Colors */
+.grade-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.grade-excellent {
+  color: #059669;
+  background: #ecfdf5;
+}
+
+.grade-tres-bien {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.grade-bien {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.grade-assez-bien {
+  color: #ea580c;
+  background: #fff7ed;
+}
+
+.grade-insuffisant {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+/* Recent Grades */
+.grades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
+.grade-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.grade-item:hover {
+  background: #f3f4f6;
+}
+
+.grade-details {
+  flex: 1;
+}
+
+.grade-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.grade-subject {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.grade-date {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.grade-teacher {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.grade-value {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: 2rem 0;
+  color: #6b7280;
+}
+
+.empty-state svg {
+  height: 3rem;
+  width: 3rem;
+  margin: 0 auto 0.75rem;
+  color: #d1d5db;
+}
+
+.empty-state p:first-of-type {
+  margin-bottom: 0.25rem;
+}
+
+.empty-state p:last-of-type {
+  font-size: 0.875rem;
+}
+
+/* Performance Banner */
+.performance-banner {
+  margin-top: 2rem;
+  background: linear-gradient(to right, #3b82f6, #4f46e5);
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  color: white;
+}
+
+.performance-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.performance-banner-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.75rem;
+  border-radius: 9999px;
+}
+
+.performance-banner-icon svg {
+  height: 2rem;
+  width: 2rem;
+}
+
+.performance-banner-info h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.performance-banner-info p {
+  color: #bfdbfe;
+}
+
+.performance-banner-stats {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.875rem;
+}

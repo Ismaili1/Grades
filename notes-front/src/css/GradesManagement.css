@@ -1,0 +1,101 @@
+<<<<<<< Updated upstream
+=======
+.gestion-notes {
+  padding: 30px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  margin-left: 240px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.add-button {
+  padding: 10px 20px;
+  background: linear-gradient(to right, #7b61ff, #8753c6);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.add-button:hover {
+  opacity: 0.9;
+}
+
+.notes-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.notes-table thead {
+  background: linear-gradient(to right, #6c63ff, #8753c6);
+  color: white;
+}
+
+.notes-table th,
+.notes-table td {
+  padding: 15px 20px;
+  text-align: left;
+}
+
+.notes-table tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+.notes-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.notes-table td {
+  font-size: 14px;
+}
+
+.notes-table td:nth-child(3) {
+  font-weight: bold;
+}
+
+.edit,
+.delete {
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-right: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.edit {
+  background-color: #00bcd4;
+}
+
+.edit:hover {
+  background-color: #00acc1;
+}
+
+.delete {
+  background-color: #e74c3c;
+}
+
+.delete:hover {
+  background-color: #c0392b;
+}
+>>>>>>> Stashed changes
