@@ -12,7 +12,7 @@ import StudentDashboard from "./pages/Student/StudentDashboard";
 import StudentGrades from "./pages/Student/StudentGrades";
 
 import GradesManagement from "./pages/Teacher/GradesManagement";
-import MesEtudiants from "./pages/Teacher/etudiants";
+import BulletinScolaire from "./pages/Teacher/etudiants";
 
 // Admin Pages
 import AddClassForm from "./pages/Admin/add-class";
@@ -64,7 +64,7 @@ function App() {
         <Route path="/enseignant" element={<Layout />}>
           <Route path="dashboard" element={<TeacherDashboard />} />
           <Route path="grades" element={<GradesManagement />} />
-          <Route path="students" element={<MesEtudiants />} />
+          <Route path="students" element={<BulletinScolaire />} />
         </Route>
 
         {/* Student Routes */}

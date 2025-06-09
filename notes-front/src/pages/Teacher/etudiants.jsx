@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../../services/api";
 import "../../css/TeacherCss/etudiants.css";
 
-function MesEtudiants() {
+function BulletinScolaire() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [teacherId, setTeacherId] = useState(null);
   const [classes, setClasses] = useState([]);
+  const [allSubjects, setAllSubjects] = useState([]);
   const [selectedClassId, setSelectedClassId] = useState("");
-  const [students, setStudents] = useState([]);
-  const [uniqueAcademicYears, setUniqueAcademicYears] = useState([]);
+  const [selectedSubjectId, setSelectedSubjectId] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
-  const [studentAverages, setStudentAverages] = useState([]);
-  const [loadingAverages, setLoadingAverages] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [grades, setGrades] = useState([]);
+  const [academicYears, setAcademicYears] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
 
+  // Fetch initial data
   useEffect(() => {
     const init = async () => {
       try {
@@ -21,21 +24,39 @@ function MesEtudiants() {
         setError(null);
 
         const userData = await api.getUser();
-
         if (userData.role !== "enseignant" || !userData.teacher) {
-          throw new Error("Accès interdit : vous devez être un enseignant.");
+          throw new Error("Accès réservé aux enseignants");
         }
 
         setTeacherId(userData.teacher.id);
-
-        // Recuperation des classes de l'enseignant
-        const teacherClasses = await api.getTeacherClasses();
+        
+        // Fetch classes, subjects, and academic years in parallel
+        const [teacherClasses, teacherSubjects, years] = await Promise.all([
+          api.getTeacherClasses(),
+          api.getTeacherSubjects(),
+          api.getAcademicYears()
+        ]);
+        
+        console.log('Fetched classes:', teacherClasses);
+        console.log('Fetched subjects:', teacherSubjects);
+        
         setClasses(teacherClasses);
+        
+        // Transform subjects to match the expected structure if needed
+        const transformedSubjects = Array.isArray(teacherSubjects) 
+          ? teacherSubjects.map(subject => ({
+              ...subject,
+              // Ensure subject has a classes array
+              classes: subject.classes || [subject.class]?.filter(Boolean) || []
+            }))
+          : [];
+            
+        setAllSubjects(transformedSubjects);
+        setAcademicYears(years);
+        
       } catch (err) {
         console.error("Initialization Error:", err);
-        setError(
-          err.message || "Une erreur est survenue lors de l'initialisation."
-        );
+        setError(err.message || "Erreur lors de l'initialisation");
       } finally {
         setLoading(false);
       }
@@ -44,6 +65,14 @@ function MesEtudiants() {
     init();
   }, []);
 
+  // Reset selected subject when class changes
+  useEffect(() => {
+    if (selectedClassId) {
+      setSelectedSubjectId("");
+    }
+  }, [selectedClassId]);
+
+  // Fetch students when class is selected
   useEffect(() => {
     const fetchStudents = async () => {
       if (!selectedClassId) {
@@ -51,141 +80,200 @@ function MesEtudiants() {
         return;
       }
       try {
-        setLoading(true);
-        setError(null);
         const studentsData = await api.getTeacherClassStudents(selectedClassId);
         setStudents(studentsData);
       } catch (err) {
-        setError(
-          err.message || "Erreur lors de la récupération des étudiants."
-        );
-      } finally {
-        setLoading(false);
+        setError("Erreur lors du chargement des étudiants");
       }
     };
+
     fetchStudents();
   }, [selectedClassId]);
 
-  const handleYearChange = async (e) => {
-    const yearId = e.target.value;
-    setSelectedYear(yearId);
-    if (!yearId) {
-      setStudentAverages([]);
+  // Fetch grades when filters change
+  const fetchGrades = useCallback(async () => {
+    if (!selectedClassId || !selectedSubjectId || !selectedYear) {
+      setGrades([]);
       return;
     }
 
     try {
-      setLoadingAverages(true);
-      setError(null);
+      setIsGenerating(true);
+      const gradesData = await api.getGrades({
+        class_id: selectedClassId,
+        subject_id: selectedSubjectId,
+        academic_year: selectedYear
+      });
+      setGrades(gradesData);
+    } catch (err) {
+      console.error("Error fetching grades:", err);
+      setError("Erreur lors du chargement des notes");
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [selectedClassId, selectedSubjectId, selectedYear]);
 
-      const promises = students.map((student) =>
-        api
-          .getStudentAverages(student.id, yearId)
-          .then((data) => ({
-            id: student.id,
-            name: student.user?.name,
-            general_average: data.general_average,
-            subject_averages: data.subject_averages,
-          }))
-          .catch((err) => {
-            console.error(
-              `Error fetching averages for student ${student.id}:`,
-              err
-            );
-            return null;
-          })
-      );
+  // Calculate student averages
+  const calculateAverages = useCallback(() => {
+    const studentGrades = {};
 
-      const results = await Promise.all(promises);
-      const validResults = results.filter((r) => r !== null);
-
-      if (validResults.length === 0) {
-        setError("Aucune moyenne disponible pour cette année scolaire.");
+    grades.forEach(grade => {
+      if (!studentGrades[grade.student_id]) {
+        studentGrades[grade.student_id] = {
+          name: students.find(s => s.id === grade.student_id)?.user?.name || 'Inconnu',
+          cc1: null,
+          cc2: null,
+          cc3: null,
+          exam: null
+        };
       }
 
-      setStudentAverages(validResults);
-    } catch (err) {
-      console.error("Averages Fetch Error:", err);
-      setError(
-        err.message ||
-          "Une erreur est survenue lors de la récupération des moyennes."
-      );
-    } finally {
-      setLoadingAverages(false);
-    }
-  };
+      // Map grade types to their values
+      if (grade.type === 'CC1') studentGrades[grade.student_id].cc1 = parseFloat(grade.grade);
+      else if (grade.type === 'CC2') studentGrades[grade.student_id].cc2 = parseFloat(grade.grade);
+      else if (grade.type === 'CC3') studentGrades[grade.student_id].cc3 = parseFloat(grade.grade);
+      else if (grade.type === 'EXAM') studentGrades[grade.student_id].exam = parseFloat(grade.grade);
+    });
+
+    // Calculate averages
+    Object.values(studentGrades).forEach(student => {
+      const ccGrades = [student.cc1, student.cc2, student.cc3].filter(g => g !== null);
+      const ccAverage = ccGrades.length > 0 
+        ? ccGrades.reduce((sum, grade) => sum + grade, 0) / ccGrades.length 
+        : 0;
+      
+      student.average = student.exam !== null 
+        ? (ccAverage * 0.4) + (student.exam * 0.6) 
+        : null;
+    });
+
+    return Object.values(studentGrades);
+  }, [grades, students]);
+
+  const studentAverages = calculateAverages();
 
   if (loading) {
-    return (
-      <div className="students-loading">
-        <p>Chargement des données...</p>
-      </div>
-    );
+    return <div className="loading">Chargement en cours...</div>;
   }
 
   if (error) {
     return (
-      <div className="students-error">
-        <p className="error-message">{error}</p>
-        <button
-          className="retry-button"
-          onClick={() => window.location.reload()}
-        >
-          Réessayer
-        </button>
+      <div className="error">
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Réessayer</button>
       </div>
     );
   }
 
   return (
-    <div className="students-container">
-      <h2>Mes étudiants</h2>
+    <div className="bulletin-container">
+      <h2>Bulletin Scolaire</h2>
+      
+      <div className="filters">
+        <div className="filter-group">
+          <label>Classe:</label>
+          <select 
+            value={selectedClassId} 
+            onChange={(e) => setSelectedClassId(e.target.value)}
+          >
+            <option value="">Sélectionnez une classe</option>
+            {classes.map(classe => (
+              <option key={classe.id} value={classe.id}>
+                {classe.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div className="class-select">
-        <label>Classe :</label>
-        <select
-          value={selectedClassId}
-          onChange={(e) => setSelectedClassId(e.target.value)}
-          disabled={loading}
+        <div className="filter-group">
+          <label>Matière:</label>
+          <select 
+            value={selectedSubjectId} 
+            onChange={(e) => setSelectedSubjectId(e.target.value)}
+            disabled={!selectedClassId}
+            className={!selectedClassId ? 'disabled' : ''}
+          >
+            <option value="">Sélectionnez une matière</option>
+            {allSubjects
+              .filter(subject => {
+                if (!selectedClassId) return false;
+                return subject.classes?.some(c => c.id.toString() === selectedClassId);
+              })
+              .filter((item, index, self) => {
+                // Filter out duplicate subjects by ID - same as in GradesManagement.jsx
+                const subjectId = item.subject?.id || item.id;
+                return subjectId && self.findIndex(i => (i.subject?.id || i.id) === subjectId) === index;
+              })
+              .map((item) => {
+                const subjectId = item.subject?.id || item.id;
+                const subjectName = item.subject?.name || item.name || 'Matière inconnue';
+                
+                return (
+                  <option key={`subject-${subjectId}`} value={subjectId}>
+                    {subjectName}
+                  </option>
+                );
+              })}
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Année Scolaire:</label>
+          <select 
+            value={selectedYear} 
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className={!selectedYear ? 'disabled' : ''}
+          >
+            <option value="">Sélectionnez une année</option>
+            {academicYears.map(year => (
+              <option key={year.id} value={year.id}>
+                {year.name || year.label || `${year.start_year}/${year.end_year}`}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button 
+          className="generate-btn"
+          onClick={fetchGrades}
+          disabled={!selectedClassId || !selectedSubjectId || !selectedYear || isGenerating}
         >
-          <option value="">-- Sélectionnez une classe --</option>
-          {classes.map((classe) => (
-            <option key={classe.id} value={classe.id}>
-              {classe.name}
-            </option>
-          ))}
-        </select>
+          {isGenerating ? 'Génération en cours...' : 'Générer le bulletin'}
+        </button>
       </div>
 
-      {loading ? (
-        <div className="students-loading">
-          <p>Chargement des données...</p>
-        </div>
-      ) : error ? (
-        <div className="students-error">
-          <p className="error-message">{error}</p>
-          <button
-            className="retry-button"
-            onClick={() => window.location.reload()}
-          >
-            Réessayer
-          </button>
-        </div>
-      ) : (
-        <div>
-          {students.length === 0 ? (
-            <p>Aucun étudiant trouvé pour cette classe.</p>
-          ) : (
-            <ul>
-              {students.map((student) => (
-                <li key={student.id}>{student.user?.name || "Inconnu"}</li>
+      {grades.length > 0 && (
+        <div className="grades-table-container">
+          <table className="grades-table">
+            <thead>
+              <tr>
+                <th>Étudiant</th>
+                <th>CC1</th>
+                <th>CC2</th>
+                <th>CC3</th>
+                <th>Examen</th>
+                <th>Moyenne</th>
+              </tr>
+            </thead>
+            <tbody>
+              {studentAverages.map((student, index) => (
+                <tr key={index}>
+                  <td>{student.name}</td>
+                  <td>{student.cc1?.toFixed(2) || '-'}</td>
+                  <td>{student.cc2?.toFixed(2) || '-'}</td>
+                  <td>{student.cc3?.toFixed(2) || '-'}</td>
+                  <td>{student.exam?.toFixed(2) || '-'}</td>
+                  <td className={student.average !== null ? 'average-cell' : ''}>
+                    {student.average ? student.average.toFixed(2) : '-'}
+                  </td>
+                </tr>
               ))}
-            </ul>
-          )}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
   );
 }
 
-export default MesEtudiants;
+export default BulletinScolaire;

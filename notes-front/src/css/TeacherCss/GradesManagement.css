@@ -1,56 +1,4 @@
-:root {
-  --color-purple: #7b2ff7;
-  --color-pink: #f107a3;
-  --color-light-bg: #f4f6f8;
-  --color-white: #ffffff;
-  --color-gray-light: #f9f9f9;
-  --color-border: #cccccc;
-  --gradient-primary: linear-gradient(
-    135deg,
-    var(--color-purple),
-    var(--color-pink)
-  );
-}
-
-/* Global Styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: "Segoe UI", Tahoma, sans-serif;
-  background-color: var(--color-light-bg);
-  color: #333333;
-  line-height: 1.6;
-}
-
-/* Container */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-/* Headings */
-h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-h2 {
-  font-size: 1.5rem;
-  color: var(--color-purple);
-  margin-bottom: 0.75rem;
-}
-
-/* Text */
-p,
-label {
-  font-size: 1rem;
-  color: #555555;
-  margin-bottom: 0.5rem;
-}
+@import "../common.css";
 
 /* Form Elements */
 .form-group {
@@ -124,51 +72,59 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(123, 47, 247, 0.1);
 }
 
-/* Unified Button Styles */
-.btn,
+/* Button overrides */
 .submit-button,
 .btn-annuler {
-  display: inline-block;
   min-width: 120px;
   padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
   border-radius: 14px;
   border: none;
   cursor: pointer;
-  transition: background 0.3s, color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 6px rgba(80, 80, 160, 0.08);
+  transition: all 0.3s ease;
   text-align: center;
+  font-weight: 600;
 }
 
-/* Ajouter button (gradient) */
+/* Submit button (gradient) */
 .submit-button {
   background: linear-gradient(90deg, #6a82fb 0%, #8360c3 100%);
   color: #fff;
-}
-.submit-button:hover {
-  background: linear-gradient(90deg, #8360c3 0%, #6a82fb 100%);
+  box-shadow: var(--shadow-sm);
 }
 
-/* Annuler button (red gradient) */
+.submit-button:hover {
+  background: linear-gradient(90deg, #8360c3 0%, #6a82fb 100%);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Cancel button (red gradient) */
 .btn-annuler {
   background: linear-gradient(90deg, #ff5858, #f857a6);
   color: #fff;
   margin-left: 1rem;
-}
-.btn-annuler:hover {
-  background: linear-gradient(90deg, #f857a6, #ff5858);
+  box-shadow: var(--shadow-sm);
 }
 
-/* Secondary Button (e.g., Cancel) */
+.btn-annuler:hover {
+  background: linear-gradient(90deg, #f857a6, #ff5858);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Secondary button */
 .btn-secondary {
-  background: #ffffff;
+  background: var(--color-white);
   color: var(--color-purple);
   border: 2px solid var(--color-purple);
+  transition: all var(--transition-normal);
 }
+
 .btn-secondary:hover {
   background: var(--color-purple);
-  color: #ffffff;
+  color: var(--color-white);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Table Styles */
