@@ -37,7 +37,33 @@ function TeacherDashboard() {
             api.getGrades({ teacher_id: teacherId }),
           ]);
         
-        console.log('Grades data:', teacherGrades); // Debug log to check grades data
+        // Log subjects data in a more readable format
+        console.group('=== SUBJECTS DATA ===');
+        console.log('Number of subjects:', teacherSubjects?.length || 0);
+        console.log('First 3 subjects (simplified):', 
+          teacherSubjects?.slice(0, 3).map(s => ({
+            id: s.id || 'none',
+            name: s.name || s.subject?.name || 'no name',
+            classesCount: Array.isArray(s.classes) ? s.classes.length : 'not an array',
+            classes: Array.isArray(s.classes) ? s.classes.map(c => ({
+              id: c.id || 'none',
+              name: c.name || 'no name',
+              type: typeof c
+            })) : 'N/A'
+          })) || 'No subjects found'
+        );
+        console.groupEnd();
+
+        // Log the structure of the first subject in detail
+        if (teacherSubjects?.[0]) {
+          console.group('=== FIRST SUBJECT DETAILS ===');
+          console.log('Full structure of first subject:', teacherSubjects[0]);
+          console.log('Subject ID:', teacherSubjects[0].id);
+          console.log('Subject name:', teacherSubjects[0].name || teacherSubjects[0].subject?.name);
+          console.log('Classes type:', Array.isArray(teacherSubjects[0].classes) ? 'array' : typeof teacherSubjects[0].classes);
+          console.log('Classes content:', teacherSubjects[0].classes);
+          console.groupEnd();
+        }
 
         setClasses(teacherClasses);
         setSubjects(teacherSubjects);
@@ -142,17 +168,40 @@ function TeacherDashboard() {
                   <p className="no-data">Aucune matière assignée</p>
                 ) : (
                   <ul className="subjects-list">
-                    {subjects.map((item, idx) => (
-                      <li key={idx} className="subject-item">
+                    {subjects.reduce((uniqueItems, item) => {
+                      // Create a unique key for each subject
+                      const subjectId = item.id || item.subject?.id || Math.random().toString(36).substr(2, 9);
+                      const subjectName = item.subject?.name || item.name || 'Matière inconnue';
+                      
+                      // Check if we've already processed this subject
+                      if (!uniqueItems.some(ui => ui.id === subjectId)) {
+                        const classes = Array.isArray(item.classes) ? item.classes : [];
+                        const firstLetter = subjectName.charAt(0).toUpperCase();
+                        
+                        uniqueItems.push({
+                          id: subjectId,
+                          name: subjectName,
+                          classes: classes,
+                          firstLetter: firstLetter
+                        });
+                      }
+                      return uniqueItems;
+                    }, []).map((subject, idx) => (
+                      <li key={subject.id} className="subject-item">
                         <div className="subject-info">
                           <div className="subject-icon">
-                            {item.subject.name.charAt(0).toUpperCase()}
+                            {subject.firstLetter}
                           </div>
                           <div>
-                            <div className="subject-name">{item.subject.name}</div>
-                            {item.classes && item.classes.length > 0 && (
+                            <div className="subject-name">{subject.name}</div>
+                            {subject.classes.length > 0 && (
                               <div className="subject-classes">
-                                Classes: {item.classes.map(c => c.name).join(", ")}
+                                Classes: {subject.classes.map((c, i) => (
+                                  <span key={`${subject.id}-class-${i}`}>
+                                    {typeof c === 'object' ? c.name || 'Classe inconnue' : c}
+                                    {i < subject.classes.length - 1 ? ', ' : ''}
+                                  </span>
+                                ))}
                               </div>
                             )}
                           </div>

@@ -160,21 +160,36 @@ function GradesManagement() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
+      console.log('Form submission started with data:', formData);
+      
+      // Validate form data
       validateForm();
 
       if (formMode === "add") {
-        await api.createGrade({
+        console.log('Creating new grade with data:', {
+          student_id: formData.student_id,
+          subject_id: formData.subject_id,
+          academic_year_id: formData.academic_year_id,
+          grade: formData.grade,
+          grading_period: formData.grading_period,
+        });
+        
+        const response = await api.createGrade({
           student_id: parseInt(formData.student_id),
           subject_id: parseInt(formData.subject_id),
           academic_year_id: parseInt(formData.academic_year_id),
           grade: parseFloat(formData.grade),
           grading_period: formData.grading_period,
         });
+        
+        console.log('Grade created successfully:', response);
         showFeedback("Note ajoutée avec succès !");
       } else if (formMode === "edit" && editGradeId) {
-        await api.updateGrade(editGradeId, {
+        console.log('Updating grade:', { id: editGradeId, grade: formData.grade });
+        const response = await api.updateGrade(editGradeId, {
           grade: parseFloat(formData.grade),
         });
+        console.log('Grade updated successfully:', response);
         showFeedback("Note mise à jour avec succès !");
       }
 
@@ -360,23 +375,21 @@ function GradesManagement() {
           <form onSubmit={handleFormSubmit} className="grade-form">
             <div className="form-row">
               <label>Classe :</label>
-              <div className="radio-group">
+              <select
+                name="class_id"
+                value={selectedClassId}
+                onChange={(e) => setSelectedClassId(e.target.value)}
+                required
+                disabled={formMode === "edit" || isSubmitting}
+                className="class-select"
+              >
+                <option value="">-- Sélectionnez une classe --</option>
                 {classes.map((classe) => (
-                  <label key={classe.id} className="custom-radio-label">
-                    <input
-                      type="radio"
-                      name="class_id"
-                      value={classe.id}
-                      checked={selectedClassId === classe.id.toString()}
-                      onChange={(e) => setSelectedClassId(e.target.value)}
-                      disabled={formMode === "edit" || isSubmitting}
-                      required
-                      className="custom-radio"
-                    />
-                    <span className="custom-radio-span">{classe.name}</span>
-                  </label>
+                  <option key={classe.id} value={classe.id}>
+                    {classe.name}
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
             <div className="form-row">
               <label>Matière :</label>
@@ -393,11 +406,22 @@ function GradesManagement() {
                 }
               >
                 <option value="">-- Sélectionnez une matière --</option>
-                {filteredSubjects.map((item) => (
-                  <option key={item.subject.id} value={item.subject.id}>
-                    {item.subject.name}
-                  </option>
-                ))}
+                {filteredSubjects
+                  .filter((item, index, self) => {
+                    // Filter out duplicate subjects by ID
+                    const subjectId = item.subject?.id || item.id;
+                    return subjectId && self.findIndex(i => (i.subject?.id || i.id) === subjectId) === index;
+                  })
+                  .map((item) => {
+                    const subjectId = item.subject?.id || item.id;
+                    const subjectName = item.subject?.name || item.name || 'Matière inconnue';
+                    
+                    return (
+                      <option key={`subj-${subjectId}`} value={subjectId}>
+                        {subjectName}
+                      </option>
+                    );
+                  })}
               </select>
             </div>
             <div className="form-row">
@@ -508,11 +532,22 @@ function GradesManagement() {
             onChange={(e) => setFilterSubject(e.target.value)}
           >
             <option value="">Toutes les matières</option>
-            {subjects.map((item) => (
-              <option key={item.subject.id} value={item.subject.id}>
-                {item.subject.name}
-              </option>
-            ))}
+            {subjects
+              .filter((item, index, self) => {
+                // Filter out duplicate subjects by ID
+                const subjectId = item.subject?.id || item.id;
+                return subjectId && self.findIndex(i => (i.subject?.id || i.id) === subjectId) === index;
+              })
+              .map((item) => {
+                const subjectId = item.subject?.id || item.id;
+                const subjectName = item.subject?.name || item.name || 'Matière inconnue';
+                
+                return (
+                  <option key={`filter-subj-${subjectId}`} value={subjectId}>
+                    {subjectName}
+                  </option>
+                );
+              })}
           </select>
           <select
             value={filterYear}
@@ -552,8 +587,8 @@ function GradesManagement() {
               </tr>
             </thead>
             <tbody>
-              {filteredRows.map((entry, idx) => (
-                <tr key={idx}>
+              {filteredRows.map((entry) => (
+                <tr key={`${entry.student?.id}-${entry.subject?.id}`}>
                   <td>{entry.student?.user?.name || "Inconnu"}</td>
                   <td>{entry.subject?.name || "Inconnue"}</td>
                   <td>{entry.academic_year?.label || "Inconnue"}</td>
