@@ -6,7 +6,7 @@ import Login from "./pages/Login";
 import Layout from "./components/Layout";
 
 // Dashboards
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import StudentGrades from "./pages/Student/StudentGrades";
@@ -15,21 +15,21 @@ import GradesManagement from "./pages/Teacher/GradesManagement";
 import MesEtudiants from "./pages/Teacher/etudiants";
 
 // Admin Pages
-import AddClassForm from "./pages/add-class";
-import AddStudent from "./pages/add-student";
-import AddSubject from "./pages/add-subject";
-import AddTeacher from "./pages/add-teacher";
-import ClassStudents from "./pages/ClassStudent";
+import AddClassForm from "./pages/Admin/add-class";
+import AddStudent from "./pages/Admin/add-student";
+import AddSubject from "./pages/Admin/add-subject";
+import AddTeacher from "./pages/Admin/add-teacher";
+import ClassStudents from "./pages/Admin/ClassStudent";
 
-import StudentsManagement from "./pages/StudentsManagement";
-import TeachersManagement from "./pages/TeachersManagement";
-import SubjectsManagement from "./pages/SubjectsManagement";
-import ClassesManagement from "./pages/ClassesManagement";
+import StudentsManagement from "./pages/Admin/StudentsManagement";
+import TeachersManagement from "./pages/Admin/TeachersManagement";
+import SubjectsManagement from "./pages/Admin/SubjectsManagement";
+import ClassesManagement from "./pages/Admin/ClassesManagement";
 
-import EditStudent from "./pages/edit-student";
-import EditSubject from "./pages/edit-subject";
-import EditTeacher from "./pages/edit-teacher";
-import EditClass from "./pages/edit-class";
+import EditStudent from "./pages/Admin/edit-student";
+import EditSubject from "./pages/Admin/edit-subject";
+import EditTeacher from "./pages/Admin/edit-teacher";
+import EditClass from "./pages/Admin/edit-class";
 
 function App() {
   return (

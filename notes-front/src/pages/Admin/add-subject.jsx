@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import '../css/add-subject.css'
+import '../../css/admin/add-subject.css'
 
 function AddSubject() {
   const [name, setName] = useState("");

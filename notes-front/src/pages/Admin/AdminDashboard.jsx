@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import '../css/AdminDashboard.css';
+import '../../css/admin/admindashboard.css';
 
 function AdminDashboard() {
   const [admin, setAdmin] = useState(null);

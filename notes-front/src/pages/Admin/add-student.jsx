@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import '../css/add-student.css';
+import '../../css/admin/add-student.css';
 
 function AddStudent() {
   const [classes, setClasses] = useState([]);

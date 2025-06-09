@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import '../css/add-class.css';
+import '../../css/admin/add-class.css';
 
 function AddClassForm() {
   const [className, setClassName] = useState("");

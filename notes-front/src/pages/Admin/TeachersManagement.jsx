@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import '../css/TeachersManagement.css';
+import '../../css/admin/teachersmanagement.css';
 
 function TeachersManagement() {
   const [teachers, setTeachers] = useState([]);

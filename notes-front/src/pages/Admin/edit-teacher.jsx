@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import '../css/EditTeacher.css';
+import '../../css/admin/editteacher.css';
 
 function EditTeacher() {
   const { id } = useParams(); // This is the user ID

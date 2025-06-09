@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../css/add-teacher.css";
+import "../../css/admin/add-teacher.css";
 
 function AddTeacher() {
   const [form, setForm] = useState({

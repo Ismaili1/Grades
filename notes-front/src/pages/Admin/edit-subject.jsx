@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import '../css/EditClass.css';
+import '../../css/admin/editsubject.css';
 
-function EditClass() {
+function EditSubject() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [classData, setClassData] = useState({
+  const [subject, setSubject] = useState({
     name: ''
   });
   const [loading, setLoading] = useState(true);
@@ -22,30 +22,28 @@ function EditClass() {
       return;
     }
 
-    // Fetch class data
-    axios.get(`http://localhost:8000/api/classes/${id}`, {
+    // Fetch subject data
+    axios.get(`http://localhost:8000/api/subjects/${id}`, {
       headers: {
         Authorization: "Bearer " + token
       }
     })
     .then(function(response) {
-      // Handle different response formats
-      const classInfo = response.data.class || response.data.data || response.data;
-      setClassData({
-        name: classInfo.name || ''
+      setSubject({
+        name: response.data.name
       });
       setLoading(false);
     })
     .catch(function(error) {
-      console.error("Error loading class:", error);
-      setError("Erreur lors du chargement de la classe.");
+      console.error("Error:", error);
+      setError("Erreur lors du chargement de la matière.");
       setLoading(false);
     });
   }, [id]);
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setClassData(prev => ({
+    setSubject(prev => ({
       ...prev,
       [name]: value
     }));
@@ -58,14 +56,14 @@ function EditClass() {
     
     const token = localStorage.getItem("token");
 
-    axios.put(`http://localhost:8000/api/classes/${id}`, classData, {
+    axios.put(`http://localhost:8000/api/subjects/${id}`, subject, {
       headers: {
         Authorization: "Bearer " + token
       }
     })
     .then(function() {
-      setSuccess("Classe mise à jour avec succès!");
-      setTimeout(() => navigate("/admin/classes"), 1500);
+      setSuccess("Matière mise à jour avec succès!");
+      setTimeout(() => navigate("/admin/subjects"), 1500);
     })
     .catch(function(error) {
       console.error("Update Error:", error);
@@ -74,7 +72,7 @@ function EditClass() {
   }
 
   function goBack() {
-    navigate("/admin/classes");
+    navigate("/admin/subjects");
   }
 
   if (loading) {
@@ -82,24 +80,24 @@ function EditClass() {
   }
 
   return (
-    <div className="edit-class-container">
-      <div className="edit-class-header">
+    <div className="edit-subject-container">
+      <div className="edit-subject-header">
         <button className="back-button" onClick={goBack}>← Retour</button>
-        <h1 className="page-title">Modifier la Classe</h1>
+        <h1 className="page-title">Modifier la Matière</h1>
       </div>
 
-      <div className="edit-class-form-container">
+      <div className="edit-subject-form-container">
         {error && <div className="error-message">{error}</div>}
         {success && <div className="success-message">{success}</div>}
 
-        <form onSubmit={handleSubmit} className="edit-class-form">
+        <form onSubmit={handleSubmit} className="edit-subject-form">
           <div className="form-group">
-            <label htmlFor="name">Nom de la classe</label>
+            <label htmlFor="name">Nom de la matière</label>
             <input
               type="text"
               id="name"
               name="name"
-              value={classData.name}
+              value={subject.name}
               onChange={handleChange}
               required
             />
@@ -119,4 +117,4 @@ function EditClass() {
   );
 }
 
-export default EditClass;
+export default EditSubject;
