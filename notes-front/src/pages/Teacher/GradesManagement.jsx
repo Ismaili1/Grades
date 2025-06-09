@@ -322,15 +322,7 @@ function GradesManagement() {
       {feedbackMessage && (
         <div className="feedback-message">{feedbackMessage}</div>
       )}
-      <div
-        className="grades-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1.5rem",
-        }}
-      >
+      <div className="grades-header">
         <h2>Gestion des notes</h2>
         {!showForm && (
           <button
@@ -348,17 +340,6 @@ function GradesManagement() {
               });
             }}
             disabled={showForm && formMode === "edit"}
-            style={{
-              minWidth: "180px",
-              padding: "0.75rem 1.5rem",
-              fontWeight: "bold",
-              fontSize: "1rem",
-              borderRadius: "8px",
-              background: "linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%)",
-              color: "#fff",
-              border: "none",
-              cursor: "pointer",
-            }}
           >
             {showForm && formMode === "add"
               ? "Fermer le formulaire"
@@ -368,7 +349,7 @@ function GradesManagement() {
       </div>
 
       {showForm && (
-        <section className="form-section" style={{ marginBottom: "2rem" }}>
+        <section className="form-section">
           <h3>
             {formMode === "add" ? "Ajouter une note" : "Modifier une note"}
           </h3>
