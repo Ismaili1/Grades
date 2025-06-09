@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import '../../css/admin/admindashboard.css';
+import '../../css/common.css';
+import '../../css/Admin/admindashboard.css';
 
 function AdminDashboard() {
   const [admin, setAdmin] = useState(null);
@@ -109,100 +110,104 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="admin-dashboard">
-      <div className="admin-header">
-        <h1 className="admin-title">Bienvenue, {admin.name}</h1>
-        <p className="admin-subtitle">Tableau de bord administrateur</p>
-      </div>
+    <div className="admin-dashboard-page">
+      <div className="dashboard-container">
+        <div className="dashboard-content">
+          <h1 className="admin-title">Bienvenue, {admin.name}</h1>
+          <p className="admin-subtitle">Tableau de bord administrateur</p>
+          
+          <div className="stats-container">
+            <div className="stat-card clickable-card" onClick={goToStudentsManagement}>
+              <div className="stat-content">
+                <p className="stat-title">Total des étudiants</p>
+                <p className="stat-value">{stats.students}</p>
+              </div>
+              <button 
+                className="add-icon-bottom" 
+                onClick={function(e) {
+                  e.stopPropagation();
+                  goToAddStudent();
+                }}
+              >
+                +
+              </button>
+            </div>
 
-      <div className="stats-container">
-        <div className="stat-card clickable-card" onClick={goToStudentsManagement}>
-          <div className="stat-content">
-            <p className="stat-title">Total des étudiants</p>
-            <p className="stat-value">{stats.students}</p>
+            <div className="stat-card clickable-card" onClick={goToSubjectsManagement}>
+              <div className="stat-content">
+                <p className="stat-title">Total des matières</p>
+                <p className="stat-value">{stats.subjects}</p>
+              </div>
+              <button 
+                className="add-icon-bottom" 
+                onClick={function(e) {
+                  e.stopPropagation();
+                  goToAddSubject();
+                }}
+              >
+                +
+              </button>
+            </div>
+
+            <div className="stat-card clickable-card" onClick={goToTeachersManagement}>
+              <div className="stat-content">
+                <p className="stat-title">Total des enseignants</p>
+                <p className="stat-value">{stats.teachers}</p>
+              </div>
+              <button 
+                className="add-icon-bottom" 
+                onClick={function(e) {
+                  e.stopPropagation();
+                  goToAddTeacher();
+                }}
+              >
+                +
+              </button>
+            </div>
+
+            <div className="stat-card clickable-card" onClick={goToClassesManagement}>
+              <div className="stat-content">
+                <p className="stat-title">Total des classes</p>
+                <p className="stat-value">{stats.classesCount}</p>
+              </div>
+              <button 
+                className="add-icon-bottom" 
+                onClick={function(e) {
+                  e.stopPropagation();
+                  goToAddClass();
+                }}
+              >
+                +
+              </button>
+            </div>
           </div>
-          <button 
-            className="add-icon-bottom" 
-            onClick={function(e) {
-              e.stopPropagation();
-              goToAddStudent();
-            }}
-          >
-            +
-          </button>
+
+          <div className="classes-section">
+            <div className="section-header">
+              <h3 className="section-title">Classes</h3>
+            </div>
+            {classes.length === 0 ? (
+              <p className="no-data">Aucune classe disponible.</p>
+            ) : (
+              <div className="classes-grid">
+                {classes.map(function (cl) {
+                  return (
+                    <div
+                      key={cl.id}
+                      className="class-card"
+                      onClick={function () { goToClassDetails(cl.id); }}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <h4 className="class-name">{cl.name}</h4>
+                      <p className="class-id">ID: {cl.id}</p>
+                      <p className="class-students">Étudiants: {cl.students_count}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
-
-        <div className="stat-card clickable-card" onClick={goToSubjectsManagement}>
-          <div className="stat-content">
-            <p className="stat-title">Total des matières</p>
-            <p className="stat-value">{stats.subjects}</p>
-          </div>
-          <button 
-            className="add-icon-bottom" 
-            onClick={function(e) {
-              e.stopPropagation();
-              goToAddSubject();
-            }}
-          >
-            +
-          </button>
-        </div>
-
-        <div className="stat-card clickable-card" onClick={goToTeachersManagement}>
-          <div className="stat-content">
-            <p className="stat-title">Total des enseignants</p>
-            <p className="stat-value">{stats.teachers}</p>
-          </div>
-          <button 
-            className="add-icon-bottom" 
-            onClick={function(e) {
-              e.stopPropagation();
-              goToAddTeacher();
-            }}
-          >
-            +
-          </button>
-        </div>
-
-        <div className="stat-card clickable-card" onClick={goToClassesManagement}>
-          <div className="stat-content">
-            <p className="stat-title">Total des classes</p>
-            <p className="stat-value">{stats.classesCount}</p>
-          </div>
-          <button 
-            className="add-icon-bottom" 
-            onClick={function(e) {
-              e.stopPropagation();
-              goToAddClass();
-            }}
-          >
-            +
-          </button>
-        </div>
-      </div>
-
-      <div className="classes-section">
-        <h3 className="section-title">Classes</h3>
-        {classes.length === 0 ? (
-          <p>Aucune classe disponible.</p>
-        ) : (
-          <div className="classes-grid">
-            {classes.map(function (cl) {
-              return (
-                <div
-                  key={cl.id}
-                  className="class-card"
-                  onClick={function () { goToClassDetails(cl.id); }}
-                  style={{ cursor: "pointer" }}
-                >
-                  <h4 className="class-name">{cl.name}</h4>
-                  <p className="class-id">ID: {cl.id}</p>
-                  <p className="class-students">Étudiants: {cl.students_count}</p>
-                </div>
-              );
-            })}
-          </div>
-        )}
       </div>
     </div>
   );

@@ -1,38 +1,147 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import '../../css/admin/teachersmanagement.css';
+import { FiEdit, FiTrash2, FiUserPlus, FiX, FiSave } from 'react-icons/fi';
+import '../../css/Admin/teachersmanagement.css';
 
 const API_URL = 'http://localhost:8000/api';
 const ROLE_ENSEIGNANT = 'enseignant';
 
+// Form component for adding/editing teachers
+const TeacherForm = ({ formData, onSubmit, onCancel, mode, loading }) => (
+  <div className="teacher-form-container">
+    <h3>{mode === 'add' ? 'Ajouter un enseignant' : 'Modifier l\'enseignant'}</h3>
+    <form onSubmit={onSubmit} className="teacher-form">
+      <div className="form-group">
+        <label>Nom complet</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={(e) => {
+            const value = e.target.value;
+            // Generate email based on name
+            const email = value 
+              ? value.toLowerCase().replace(/\s+/g, '.') + '@school.ma'
+              : '';
+            
+            // Update both name and email
+            onSubmit({
+              target: { 
+                name: 'email',
+                value: email
+              }
+            }, true);
+            
+            // Update the name
+            e.persist();
+            onSubmit(e);
+          }}
+          required
+          placeholder="Nom complet"
+        />
+      </div>
+      
+      <div className="form-group">
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={onSubmit}
+          required
+          placeholder="Email"
+        />
+      </div>
+      
+      <div className="form-group">
+        <label>Spécialité</label>
+        <input
+          type="text"
+          name="specialty"
+          value={formData.specialty || ''}
+          onChange={onSubmit}
+          placeholder="Spécialité"
+        />
+      </div>
+      
+      {mode === 'add' && (
+        <div className="form-group">
+          <label>Mot de passe</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={onSubmit}
+            required={mode === 'add'}
+            placeholder="Mot de passe"
+          />
+        </div>
+      )}
+      
+      <div className="form-actions">
+        <button 
+          type="button" 
+          className="btn-cancel"
+          onClick={onCancel}
+          disabled={loading}
+        >
+          <FiX /> Annuler
+        </button>
+        <button 
+          type="submit" 
+          className="btn-save"
+          disabled={loading}
+        >
+          {loading ? 'Enregistrement...' : <><FiSave /> Enregistrer</>}
+        </button>
+      </div>
+    </form>
+  </div>
+);
+
 function TeachersManagement() {
   const [teachers, setTeachers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
-
-  const filteredTeachers = teachers.filter(teacher => {
-    if (!searchTerm) return true;
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      teacher.name?.toLowerCase().includes(searchLower) ||
-      teacher.id?.toString().includes(searchTerm) ||
-      teacher.email?.toLowerCase().includes(searchLower)
-    );
+  const [showForm, setShowForm] = useState(false);
+  const [formMode, setFormMode] = useState('add');
+  const [currentTeacherId, setCurrentTeacherId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    specialty: '',
+    password: 'password123' // Default password
   });
+  const formRef = useRef(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setError('Vous devez être connecté.');
-      setLoading(false);
-      return;
+  const toggleForm = () => {
+    setShowForm(!showForm);
+    if (!showForm) {
+      // Reset form when showing
+      setFormMode('add');
+      setCurrentTeacherId(null);
+      setFormData({
+        name: '',
+        email: '',
+        specialty: '',
+        password: 'password123'
+      });
     }
+  };
 
+  // Fetch teachers on component mount
+  useEffect(() => {
     const fetchTeachers = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Vous devez être connecté.');
+        setLoading(false);
+        return;
+      }
+
       try {
+        setLoading(true);
         const response = await axios.get(`${API_URL}/users`, {
           headers: { Authorization: `Bearer ${token}` },
           params: { role: ROLE_ENSEIGNANT }
@@ -48,9 +157,6 @@ function TeachersManagement() {
         }
 
         setTeachers(teachersData);
-        if (teachersData.length === 0) {
-          setError('Aucun enseignant trouvé dans la base de données.');
-        }
       } catch (error) {
         setError(`Erreur lors du chargement: ${error.response?.data?.message || error.message}`);
       } finally {
@@ -61,8 +167,137 @@ function TeachersManagement() {
     fetchTeachers();
   }, []);
 
-  const handleEdit = (teacherId) => {
-    navigate(`/admin/edit-teacher/${teacherId}`);
+  const handleFormSubmit = async (e, isEmailAutoGenerated = false) => {
+    e?.preventDefault();
+    
+    if (!isEmailAutoGenerated) {
+      const form = e?.target;
+      if (form) {
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        
+        // Only update password if it's not empty (for edit mode)
+        if (!data.password) {
+          delete data.password;
+        }
+        
+        setFormData(prev => ({
+          ...prev,
+          ...data
+        }));
+        
+        if (formMode === 'add') {
+          await handleAddTeacher(data);
+        } else {
+          await handleUpdateTeacher(data);
+        }
+      }
+    } else {
+      // Handle email auto-generation
+      setFormData(prev => ({
+        ...prev,
+        email: e.target.value
+      }));
+    }
+  };
+  
+  const handleAddTeacher = async (data) => {
+    try {
+      setIsSubmitting(true);
+      const token = localStorage.getItem('token');
+      
+      // First create the user
+      const userData = {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: ROLE_ENSEIGNANT
+      };
+      
+      const response = await axios.post(`${API_URL}/register`, userData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Then update teacher-specific data if needed
+      if (data.specialty) {
+        await axios.put(
+          `${API_URL}/users/${response.data.user.id}/teacher`,
+          { specialty: data.specialty },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+      
+      // Refresh teachers list
+      const teachersResponse = await axios.get(`${API_URL}/users`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { role: ROLE_ENSEIGNANT }
+      });
+      
+      setTeachers(teachersResponse.data.data || teachersResponse.data);
+      setShowForm(false);
+      showSuccess('Enseignant ajouté avec succès');
+    } catch (error) {
+      setError(`Erreur lors de l'ajout: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleUpdateTeacher = async (data) => {
+    try {
+      setIsSubmitting(true);
+      const token = localStorage.getItem('token');
+      
+      // Update user data
+      await axios.put(
+        `${API_URL}/users/${currentTeacherId}`,
+        {
+          name: data.name,
+          email: data.email,
+          ...(data.password && { password: data.password })
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Update teacher-specific data
+      await axios.put(
+        `${API_URL}/users/${currentTeacherId}/teacher`,
+        { specialty: data.specialty },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Refresh teachers list
+      const response = await axios.get(`${API_URL}/users`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { role: ROLE_ENSEIGNANT }
+      });
+      
+      setTeachers(response.data.data || response.data);
+      setShowForm(false);
+      showSuccess('Enseignant mis à jour avec succès');
+    } catch (error) {
+      setError(`Erreur lors de la mise à jour: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleEdit = (teacher) => {
+    // First, scroll to top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Then update the form data and show the form
+    setFormMode('edit');
+    setCurrentTeacherId(teacher.id);
+    setFormData({
+      name: teacher.name,
+      email: teacher.email,
+      specialty: teacher.teacher?.specialty || '',
+      password: '' // Don't show password in edit mode
+    });
+    
+    // Show the form
+    setShowForm(true);
   };
 
   const handleDelete = async (teacherId, teacherName) => {
@@ -77,14 +312,29 @@ function TeachersManagement() {
       });
       
       setTeachers(prev => prev.filter(t => t.id !== teacherId));
-      alert('Enseignant supprimé avec succès.');
+      showSuccess('Enseignant supprimé avec succès');
     } catch (error) {
-      alert(`Erreur lors de la suppression: ${error.response?.data?.message || error.message}`);
+      setError(`Erreur lors de la suppression: ${error.response?.data?.message || error.message}`);
     }
   };
-
-  const goBack = () => navigate('/admin/dashboard');
-  const goToAddTeacher = () => navigate('/admin/add-teacher');
+  
+  const showSuccess = (message) => {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.textContent = message;
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+      successDiv.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+      successDiv.classList.remove('show');
+      setTimeout(() => {
+        document.body.removeChild(successDiv);
+      }, 300);
+    }, 3000);
+  };
   
   const getSubjectName = (teacher) => 
     teacher.teacher?.subjects?.[0]?.name || 'Aucune matière assignée';
@@ -93,66 +343,88 @@ function TeachersManagement() {
     !!teacher.teacher?.subjects?.length;
 
   if (loading) return <div className="loading">Chargement...</div>;
-  if (error) return <div className="error">{error}</div>;
-
+  
   return (
-    <div className="container">
-      <div className="header">
-        <button className="btn-back" onClick={goBack}>← Retour</button>
-        <h1>Gestion des Enseignants</h1>
-        <button className="btn-add" onClick={goToAddTeacher}>
-          + Ajouter un enseignant
-        </button>
+    <div className="teachers-management">
+      <div className="page-header">
+        <h1 className="page-title">Gestion des Enseignants</h1>
+        {!showForm && (
+          <button 
+            className="btn btn-add" 
+            onClick={toggleForm}
+          >
+            <FiUserPlus /> Ajouter un enseignant
+          </button>
+        )}
       </div>
 
-      <div className="search-box">
-        <input
-          type="text"
-          placeholder="Rechercher par nom, ID ou email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      <p className="total-count">Total: {filteredTeachers.length} enseignant(s)</p>
-
-      {filteredTeachers.length === 0 ? (
-        <div className="empty-state">
-          {searchTerm ? (
-            <p>Aucun enseignant trouvé pour "{searchTerm}"</p>
-          ) : (
-            <p>Aucun enseignant disponible.</p>
-          )}
-        </div>
-      ) : (
-        <div className="grid">
-          {filteredTeachers.map(teacher => (
-            <div key={teacher.id} className="card">
-              <div className="card-body">
-                <h3>{teacher.name || 'Nom non disponible'}</h3>
-                <p>ID: {teacher.id || 'N/A'}</p>
-                <p>{teacher.email || 'Email non disponible'}</p>
-                <p><strong>Matière:</strong> {getSubjectName(teacher)}</p>
-                <p className={`status ${hasSubject(teacher) ? 'assigned' : 'unassigned'}`}>
-                  {hasSubject(teacher) ? 'Assigné' : 'Non assigné'}
-                </p>
-              </div>
-              <div className="card-actions">
-                <button onClick={() => handleEdit(teacher.id)}>
-                  Modifier
-                </button>
-                <button 
-                  className="btn-delete"
-                  onClick={() => handleDelete(teacher.id, teacher.name)}
-                >
-                  Supprimer
-                </button>
-              </div>
-            </div>
-          ))}
+      {showForm && (
+        <div ref={formRef}>
+          <TeacherForm
+            formData={formData}
+            onSubmit={handleFormSubmit}
+            onCancel={toggleForm}
+            mode={formMode}
+            loading={isSubmitting}
+          />
         </div>
       )}
+
+      {error && <div className="error-message">{error}</div>}
+      
+      <div className="table-container">
+        <table className="teachers-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Spécialité</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {teachers.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="empty-state">
+                  Aucun enseignant disponible
+                </td>
+              </tr>
+            ) : (
+              teachers.map(teacher => (
+                <tr key={teacher.id}>
+                  <td>{teacher.name || 'N/A'}</td>
+                  <td>{teacher.id || 'N/A'}</td>
+                  <td>{teacher.email || 'N/A'}</td>
+                  <td>{teacher.teacher?.specialty || 'Non spécifiée'}</td>
+                  <td>
+                    <span className={`status ${hasSubject(teacher) ? 'assigned' : 'unassigned'}`}>
+                      {hasSubject(teacher) ? 'Assigné' : 'Non assigné'}
+                    </span>
+                  </td>
+                  <td className="actions">
+                    <button 
+                      className="btn-edit"
+                      onClick={() => handleEdit(teacher)}
+                    >
+                      <FiEdit />
+                    </button>
+                    <button 
+                      className="btn-delete"
+                      onClick={() => handleDelete(teacher.id, teacher.name)}
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
+  );
   );
 }
 
