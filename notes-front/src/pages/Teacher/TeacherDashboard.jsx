@@ -1,16 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
 import "../../css/TeacherCss/TeacherDashboard.css";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+
 
 function TeacherDashboard() {
   const [loading, setLoading] = useState(true);
@@ -18,7 +9,7 @@ function TeacherDashboard() {
   const [recentActivities, setRecentActivities] = useState([]);
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [gradeDistribution, setGradeDistribution] = useState([]);
+
   const [topBottomScorers, setTopBottomScorers] = useState({
     top: [],
     bottom: [],
@@ -45,6 +36,8 @@ function TeacherDashboard() {
             api.getTeacherSubjects(),
             api.getGrades({ teacher_id: teacherId }),
           ]);
+        
+        console.log('Grades data:', teacherGrades); // Debug log to check grades data
 
         setClasses(teacherClasses);
         setSubjects(teacherSubjects);
@@ -52,22 +45,6 @@ function TeacherDashboard() {
         if (!Array.isArray(teacherGrades)) {
           throw new Error("Format de données invalide reçu du serveur.");
         }
-
-        // Grade Distribution
-        const gradeRanges = { "0-5": 0, "6-10": 0, "11-15": 0, "16-20": 0 };
-        teacherGrades.forEach(({ grade }) => {
-          if (grade >= 0 && grade <= 5) gradeRanges["0-5"]++;
-          else if (grade <= 10) gradeRanges["6-10"]++;
-          else if (grade <= 15) gradeRanges["11-15"]++;
-          else if (grade <= 20) gradeRanges["16-20"]++;
-        });
-
-        setGradeDistribution(
-          Object.entries(gradeRanges).map(([range, count]) => ({
-            range,
-            count,
-          }))
-        );
 
         // Top & Bottom Scorers
         const studentStats = {};
@@ -154,148 +131,131 @@ function TeacherDashboard() {
   return (
     <div className="teacher-dashboard-page">
       <div className="dashboard-container">
-      <h1>Tableau de bord – Enseignant</h1>
-
-      <div className="dashboard-content">
-        {/* Grade Distribution Histogram */}
-        <section className="chart-section">
-          <h3>Distribution des notes</h3>
-          {gradeDistribution.length === 0 ? (
-            <p style={{ color: "#888" }}>
-              Aucune donnée de distribution disponible.
-            </p>
-          ) : (
-            <div style={{ flex: 1 }}>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={gradeDistribution}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="range" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="count" fill="#7b2ff7" name="Nombre d'élèves" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </section>
-
-        {/* Top & Bottom Scorers - List Version */}
-        <section className="performance-section">
-          <h3>Performance des élèves</h3>
-          <div className="student-performance-summary">
-            <div className="performance-columns">
-              <div>
-                <h4>Top 3</h4>
-                <ul>
-                  {topBottomScorers.top.length > 0 ? (
-                    topBottomScorers.top.map((s) => (
-                      <li key={s.id}>
-                        <span className="student-name">{s.name}</span>
-                        <span className="student-average">{s.average}/20</span>
+        <h1>Tableau de bord – Enseignant</h1>
+        <div className="dashboard-content">
+          <div className="dashboard-layout">
+            {/* Teacher's Subjects */}
+            <div className="subjects-container">
+              <section className="teacher-subjects-section">
+                <h3>Mes Matières</h3>
+                {subjects.length === 0 ? (
+                  <p className="no-data">Aucune matière assignée</p>
+                ) : (
+                  <ul className="subjects-list">
+                    {subjects.map((item, idx) => (
+                      <li key={idx} className="subject-item">
+                        <div className="subject-info">
+                          <div className="subject-icon">
+                            {item.subject.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="subject-name">{item.subject.name}</div>
+                            {item.classes && item.classes.length > 0 && (
+                              <div className="subject-classes">
+                                Classes: {item.classes.map(c => c.name).join(", ")}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </li>
-                    ))
-                  ) : (
-                    <li>Aucune donnée disponible</li>
-                  )}
-                </ul>
-              </div>
-              <div>
-                <h4>Flop 3</h4>
-                <ul>
-                  {topBottomScorers.bottom.length > 0 ? (
-                    topBottomScorers.bottom.map((s) => (
-                      <li key={s.id}>
-                        <span className="student-name">{s.name}</span>
-                        <span className="student-average">{s.average}/20</span>
-                      </li>
-                    ))
-                  ) : (
-                    <li>Aucune donnée disponible</li>
-                  )}
-                </ul>
-              </div>
+                    ))}
+                  </ul>
+                )}
+              </section>
             </div>
-          </div>
-        </section>
-      </div>
 
-      {/* Subjects and Classes */}
-      <div className="info-sections">
-        {/* Mes matières */}
-        <section className="teacher-subjects-section">
-          <h3>Mes matières</h3>
-          {subjects.length === 0 ? (
-            <p>Aucune matière assignée.</p>
-          ) : (
-            <ul>
-              {subjects.map((item, idx) => (
-                <li key={idx}>
-                  <strong>{item.subject.name}</strong>
-                  <div className="class-list">
-                    Classes: {item.classes.map(c => c.name).join(", ")}
+            {/* Performance Section */}
+            <div className="performance-container">
+              <section className="performance-section">
+                <h3>Performance des élèves</h3>
+                <div className="student-performance-summary">
+                  <div className="performance-columns">
+                    <div>
+                      <h4>Top 3</h4>
+                      <ul className="student-rank-list">
+                        {topBottomScorers.top.length > 0 ? (
+                          topBottomScorers.top.map((s, index) => (
+                            <li key={s.id} className="student-rank-item">
+                              <span className="rank-emoji">
+                                {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                              </span>
+                              <span className="student-name">{s.name}</span>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="no-data">Aucune donnée disponible</li>
+                        )}
+                      </ul>
+                    </div>
+                    <div>
+                      <h4>Flop 3</h4>
+                      <ul className="student-rank-list">
+                        {topBottomScorers.bottom.length > 0 ? (
+                          topBottomScorers.bottom.map((s, index) => (
+                            <li key={s.id} className="student-rank-item">
+                              <span className="rank-emoji">
+                                {index === 0 ? '😟' : index === 1 ? '😕' : '😔'}
+                              </span>
+                              <span className="student-name">{s.name}</span>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="no-data">Aucune donnée disponible</li>
+                        )}
+                      </ul>
+                    </div>
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        {/* Mes classes */}
-        <section className="teacher-classes-section">
-          <h3>Mes classes</h3>
-          {classes.length === 0 ? (
-            <p>Aucune classe assignée.</p>
-          ) : (
-            <ul>
-              {classes.map((classe) => (
-                <li key={classe.id}>
-                  <span>{classe.name}</span>
-                  <span className="class-stats">
-                    {classe.student_count || 0} élèves
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </div>
-
-      {/* Recent Activity Section */}
-      <section className="recent-activity-section">
-        <h3>Activité récente</h3>
-        {recentActivities.length === 0 ? (
-          <p className="no-activity">Aucune activité récente.</p>
-        ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Élève</th>
-                  <th>Matière</th>
-                  <th>Note</th>
-                  <th>Année</th>
-                  <th>Mis à jour</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentActivities.map((grade) => (
-                  <tr key={grade.id}>
-                    <td>{grade.student?.user?.name || "Inconnu"}</td>
-                    <td>{grade.subject?.name || "Inconnue"}</td>
-                    <td>
-                      {grade.grading_period ? `${grade.grading_period}: ` : ""}
-                      <strong>{grade.grade}/20</strong>
-                    </td>
-                    <td>{grade.academic_year?.name || "—"}</td>
-                    <td>{formatDate(grade.updated_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                </div>
+              </section>
+            </div>
           </div>
-        )}
-      </section>
+
+          {/* Recent Activity Section */}
+          <section className="recent-activity-section">
+            <h3>Activité récente</h3>
+            {recentActivities.length === 0 ? (
+              <p className="no-activity">Aucune activité récente.</p>
+            ) : (
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Élève</th>
+                      <th>Matière</th>
+                      <th>Note</th>
+                      <th>Année</th>
+                      <th>Mis à jour</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentActivities.map((activity) => {
+                      // Debug log to check the activity object structure
+                      console.log('Activity data:', activity);
+                      return (
+                        <tr key={activity.id}>
+                          <td>{activity.student?.user?.name || 'Inconnu'}</td>
+                          <td>{activity.subject?.name || 'N/A'}</td>
+                          <td>{activity.grade}/20</td>
+                          <td>{
+                            (() => {
+                              const yearData = activity.academic_year;
+                              if (!yearData) return activity.year || '—';
+                              if (typeof yearData === 'object') {
+                                return yearData.name || yearData.label || '—';
+                              }
+                              return yearData;
+                            })()
+                          }</td>
+                          <td>{formatDate(activity.updated_at)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        </div>
       </div>
     </div>
   );

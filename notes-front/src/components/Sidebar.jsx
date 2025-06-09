@@ -12,7 +12,7 @@ function Sidebar({ user, onLogout }) {
           { key: "teachers", label: "Enseignants" },
           { key: "subjects", label: "Matières" },
           { key: "classes", label: "Classes" },
-          { key: "grades", label: "Notes" },
+        
         ];
       case "enseignant":
         return [

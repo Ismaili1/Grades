@@ -1,135 +1,107 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import '../../css/admin/classesmanagement.css';
+
+const API_URL = 'http://localhost:8000/api';
 
 function ClassesManagement() {
   const [classes, setClasses] = useState([]);
-  const [filteredClasses, setFilteredClasses] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(function () {
-    const token = localStorage.getItem("token");
+  // Filter classes based on search term
+  const filteredClasses = classes.filter(classItem => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      classItem.name?.toLowerCase().includes(searchLower) ||
+      classItem.id?.toString().includes(searchTerm)
+    );
+  });
 
+  const fetchClasses = useCallback(async () => {
+    const token = localStorage.getItem('token');
     if (!token) {
-      setError("Vous devez être connecté.");
+      setError('Vous devez être connecté.');
       setLoading(false);
       return;
     }
 
-    // Fetch all classes
-    axios.get("http://localhost:8000/api/classes", {
-      headers: {
-        Authorization: "Bearer " + token
-      }
-    })
-    .then(function (response) {
+    try {
+      const response = await axios.get(`${API_URL}/classes`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setClasses(response.data);
-      setFilteredClasses(response.data);
+    } catch (error) {
+      setError(`Erreur lors du chargement: ${error.response?.data?.message || error.message}`);
+    } finally {
       setLoading(false);
-    })
-    .catch(function () {
-      setError("Erreur lors du chargement de la liste des classes.");
-      setLoading(false);
-    });
+    }
   }, []);
 
-  useEffect(function () {
-    if (searchTerm === "") {
-      setFilteredClasses(classes);
-    } else {
-      const filtered = classes.filter(function (classItem) {
-        return (
-          classItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          classItem.id.toString().includes(searchTerm)
-        );
-      });
-      setFilteredClasses(filtered);
+  useEffect(() => {
+    fetchClasses();
+  }, [fetchClasses]);
+
+  const handleEdit = (classId) => {
+    navigate(`/admin/edit-class/${classId}`);
+  };
+
+  const handleDelete = async (classId, className) => {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer la classe ${className} ?`)) {
+      return;
     }
-  }, [searchTerm, classes]);
 
-  function handleEdit(classId) {
-    navigate("/admin/edit-class/" + classId);
-  }
-
-  function handleDelete(classId, className) {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer la classe " + className + " ?")) {
-      const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/classes/${classId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
-      axios.delete("http://localhost:8000/api/classes/" + classId, {
-        headers: {
-          Authorization: "Bearer " + token
-        }
-      })
-      .then(function () {
-        // Remove the deleted class from the state
-        const updatedClasses = classes.filter(function (classItem) {
-          return classItem.id !== classId;
-        });
-        setClasses(updatedClasses);
-        setFilteredClasses(updatedClasses.filter(function (classItem) {
-          return (
-            classItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            classItem.id.toString().includes(searchTerm)
-          );
-        }));
-        alert("Classe supprimée avec succès.");
-      })
-      .catch(function () {
-        alert("Erreur lors de la suppression de la classe.");
-      });
+      // Optimistic update
+      setClasses(prev => prev.filter(c => c.id !== classId));
+      alert('Classe supprimée avec succès.');
+    } catch (error) {
+      alert(`Erreur lors de la suppression: ${error.response?.data?.message || error.message}`);
     }
-  }
+  };
 
-  function handleViewDetails(classId) {
-    navigate("/admin/class/" + classId);
-  }
+  const handleViewDetails = (classId) => {
+    navigate(`/admin/class/${classId}`);
+  };
 
-  function goBack() {
-    navigate("/admin/dashboard");
-  }
+  const goBack = () => navigate('/admin/dashboard');
+  const goToAddClass = () => navigate('/admin/add-class');
 
-  function goToAddClass() {
-    navigate("/admin/add-class");
-  }
-
-  if (loading) {
-    return <p style={{ textAlign: "center" }}>Chargement...</p>;
-  }
-
-  if (error) {
-    return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
-  }
+  if (loading) return <div className="loading">Chargement...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
-    <div className="classes-management">
-      <div className="classes-header">
-        <button className="back-button" onClick={goBack}>← Retour</button>
-        <h1 className="page-title">Gestion des Classes</h1>
-        <button className="add-class-button" onClick={goToAddClass}>
+    <div className="container">
+      <div className="header">
+        <button className="btn-back" onClick={goBack}>← Retour</button>
+        <h1>Gestion des Classes</h1>
+        <button className="btn-add" onClick={goToAddClass}>
           + Ajouter une classe
         </button>
       </div>
 
-      <div className="search-container">
+      <div className="search-box">
         <input
           type="text"
-          className="search-input"
           placeholder="Rechercher par nom ou ID..."
           value={searchTerm}
-          onChange={function (e) { setSearchTerm(e.target.value); }}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      <div className="classes-count">
-        <p>Total: {filteredClasses.length} classe(s)</p>
-      </div>
+      <p className="total-count">Total: {filteredClasses.length} classe(s)</p>
 
       {filteredClasses.length === 0 ? (
-        <div className="no-results">
+        <div className="empty-state">
           {searchTerm ? (
             <p>Aucune classe trouvée pour "{searchTerm}"</p>
           ) : (
@@ -137,40 +109,34 @@ function ClassesManagement() {
           )}
         </div>
       ) : (
-        <div className="classes-grid">
-          {filteredClasses.map(function (classItem) {
-            return (
-              <div key={classItem.id} className="class-card">
-                <div className="class-info">
-                  <h3 className="class-name">{classItem.name}</h3>
-                  <p className="class-id">ID: {classItem.id}</p>
-                  <p className="class-students">
-                    Étudiants: {classItem.students_count || 0}
-                  </p>
-                </div>
-                <div className="class-actions">
-                  <button
-                    className="view-button"
-                    onClick={function () { handleViewDetails(classItem.id); }}
-                  >
-                    Détails
-                  </button>
-                  <button
-                    className="edit-button"
-                    onClick={function () { handleEdit(classItem.id); }}
-                  >
-                    Modifier
-                  </button>
-                  <button
-                    className="delete-button"
-                    onClick={function () { handleDelete(classItem.id, classItem.name); }}
-                  >
-                    Supprimer
-                  </button>
+        <div className="grid">
+          {filteredClasses.map(classItem => (
+            <div key={classItem.id} className="card">
+              <div className="card-body">
+                <h3>{classItem.name}</h3>
+                <p>ID: {classItem.id}</p>
+                <div className="stats">
+                  <span className="stat">
+                    <strong>Étudiants:</strong> {classItem.students_count || 0}
+                  </span>
                 </div>
               </div>
-            );
-          })}
+              <div className="card-actions">
+                <button onClick={() => handleViewDetails(classItem.id)}>
+                  Détails
+                </button>
+                <button onClick={() => handleEdit(classItem.id)}>
+                  Modifier
+                </button>
+                <button 
+                  className="btn-delete"
+                  onClick={() => handleDelete(classItem.id, classItem.name)}
+                >
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

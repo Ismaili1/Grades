@@ -1,170 +1,113 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import '../../css/admin/studentsmanagement.css';
+
+const API_URL = 'http://localhost:8000/api';
+const ROLE_ETUDIANT = 'étudiant';
 
 function StudentsManagement() {
   const [students, setStudents] = useState([]);
-  const [filteredStudents, setFilteredStudents] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(function() {
-    const token = localStorage.getItem("token");
+  const filteredStudents = students.filter(student => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      student.name?.toLowerCase().includes(searchLower) ||
+      student.id?.toString().includes(searchTerm) ||
+      student.email?.toLowerCase().includes(searchLower) ||
+      student.student?.class?.name?.toLowerCase().includes(searchLower) || ''
+    );
+  });
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
     if (!token) {
-      setError("Vous devez être connecté.");
+      setError('Vous devez être connecté.');
       setLoading(false);
       return;
     }
 
-    axios.get("http://localhost:8000/api/users", {
-      headers: {
-        Authorization: "Bearer " + token
-      },
-      params: {
-        role: "étudiant"
+    const fetchStudents = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { role: ROLE_ETUDIANT }
+        });
+        
+        const studentsData = response.data?.data || response.data || [];
+        setStudents(studentsData);
+        if (studentsData.length === 0) {
+          setError('Aucun étudiant trouvé dans la base de données.');
+        }
+      } catch (error) {
+        setError(`Erreur lors du chargement: ${error.response?.data?.message || error.message}`);
+      } finally {
+        setLoading(false);
       }
-    })
-    .then(function(response) {
-      console.log("API Response:", response);
-      
-      // Handle paginated response from Laravel
-      let studentsData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        studentsData = response.data.data; // Laravel pagination format
-      } else if (Array.isArray(response.data)) {
-        studentsData = response.data;
-      }
+    };
 
-      if (studentsData.length === 0) {
-        setError("Aucun étudiant trouvé dans la base de données.");
-      }
-
-      console.log("Students data:", studentsData);
-      if (studentsData.length > 0) {
-        console.log("Sample student with class:", studentsData[0]);
-      }
-
-      setStudents(studentsData);
-      setFilteredStudents(studentsData);
-      setLoading(false);
-    })
-    .catch(function(error) {
-      console.error("API Error:", error);
-      setError("Erreur lors du chargement des étudiants: " + (error.response?.data?.message || error.message));
-      setLoading(false);
-    });
+    fetchStudents();
   }, []);
 
-  useEffect(function() {
-    if (searchTerm === "") {
-      setFilteredStudents(students);
-    } else {
-      const filtered = students.filter(function(student) {
-        const searchLower = searchTerm.toLowerCase();
-        return (
-          (student.name && student.name.toLowerCase().includes(searchLower)) ||
-          (student.id && student.id.toString().includes(searchTerm)) ||
-          (student.email && student.email.toLowerCase().includes(searchLower)) ||
-          // Search in class name if available
-          (student.student && student.student.class && student.student.class.name && 
-           student.student.class.name.toLowerCase().includes(searchLower))
-        );
-      });
-      setFilteredStudents(filtered);
+  const handleEdit = (studentId) => {
+    navigate(`/admin/edit-student/${studentId}`);
+  };
+
+  const handleDelete = async (studentId, studentName) => {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer l'étudiant ${studentName} ?`)) {
+      return;
     }
-  }, [searchTerm, students]);
 
-  function handleEdit(studentId) {
-    navigate("/admin/edit-student/" + studentId);
-  }
-
-  function handleDelete(studentId, studentName) {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer l'étudiant " + studentName + " ?")) {
-      const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/users/${studentId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
-      axios.delete("http://localhost:8000/api/users/" + studentId, {
-        headers: {
-          Authorization: "Bearer " + token
-        }
-      })
-      .then(function() {
-        const updatedStudents = students.filter(function(student) {
-          return student.id !== studentId;
-        });
-        setStudents(updatedStudents);
-        setFilteredStudents(updatedStudents.filter(function(student) {
-          const searchLower = searchTerm.toLowerCase();
-          return (
-            (student.name && student.name.toLowerCase().includes(searchLower)) ||
-            (student.id && student.id.toString().includes(searchTerm)) ||
-            (student.email && student.email.toLowerCase().includes(searchLower)) ||
-            (student.student && student.student.class && student.student.class.name && 
-             student.student.class.name.toLowerCase().includes(searchLower))
-          );
-        }));
-        alert("Étudiant supprimé avec succès.");
-      })
-      .catch(function(error) {
-        console.error("Delete Error:", error);
-        alert("Erreur lors de la suppression: " + (error.response?.data?.message || error.message));
-      });
+      setStudents(prev => prev.filter(s => s.id !== studentId));
+      alert('Étudiant supprimé avec succès.');
+    } catch (error) {
+      alert(`Erreur lors de la suppression: ${error.response?.data?.message || error.message}`);
     }
-  }
+  };
 
-  function goBack() {
-    navigate("/admin/dashboard");
-  }
+  const goBack = () => navigate('/admin/dashboard');
+  const goToAddStudent = () => navigate('/admin/add-student');
+  
+  const getStudentClassName = (student) => 
+    student.student?.class?.name || 'Non assigné';
 
-  function goToAddStudent() {
-    navigate("/admin/add-student");
-  }
-
-  // Helper function to get class name
-  function getStudentClassName(student) {
-    if (student.student && student.student.class && student.student.class.name) {
-      return student.student.class.name;
-    }
-    return "Non assigné";
-  }
-
-  if (loading) {
-    return <div className="loading-container">Chargement...</div>;
-  }
-
-  if (error) {
-    return <div className="error-container">{error}</div>;
-  }
+  if (loading) return <div className="loading">Chargement...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
-    <div className="students-management">
-      <div className="students-header">
-        <button className="back-button" onClick={goBack}>← Retour</button>
-        <h1 className="page-title">Gestion des Étudiants</h1>
-        <button className="add-student-button" onClick={goToAddStudent}>
+    <div className="container">
+      <div className="header">
+        <button className="btn-back" onClick={goBack}>← Retour</button>
+        <h1>Gestion des Étudiants</h1>
+        <button className="btn-add" onClick={goToAddStudent}>
           + Ajouter un étudiant
         </button>
       </div>
 
-      <div className="search-container">
+      <div className="search-box">
         <input
           type="text"
-          className="search-input"
           placeholder="Rechercher par nom, ID, email ou classe..."
           value={searchTerm}
-          onChange={function(e) { setSearchTerm(e.target.value); }}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      <div className="students-count">
-        <p>Total: {filteredStudents.length} étudiant(s)</p>
-      </div>
+      <p className="total-count">Total: {filteredStudents.length} étudiant(s)</p>
 
       {filteredStudents.length === 0 ? (
-        <div className="no-results">
+        <div className="empty-state">
           {searchTerm ? (
             <p>Aucun étudiant trouvé pour "{searchTerm}"</p>
           ) : (
@@ -172,36 +115,28 @@ function StudentsManagement() {
           )}
         </div>
       ) : (
-        <div className="students-grid">
-          {filteredStudents.map(function(student) {
-            return (
-              <div key={student.id} className="student-card">
-                <div className="student-info">
-                  <h3 className="student-name">{student.name || "Nom non disponible"}</h3>
-                  <p className="student-id">ID: {student.id || "N/A"}</p>
-                  <p className="student-email">{student.email || "Email non disponible"}</p>
-                  <p className="student-class">
-                    <strong>Classe: </strong>
-                    <span className="class-name">{getStudentClassName(student)}</span>
-                  </p>
-                </div>
-                <div className="student-actions">
-                  <button
-                    className="edit-button"
-                    onClick={function() { handleEdit(student.id); }}
-                  >
-                    Modifier
-                  </button>
-                  <button
-                    className="delete-button"
-                    onClick={function() { handleDelete(student.id, student.name); }}
-                  >
-                    Supprimer
-                  </button>
-                </div>
+        <div className="grid">
+          {filteredStudents.map(student => (
+            <div key={student.id} className="card">
+              <div className="card-body">
+                <h3>{student.name || 'Nom non disponible'}</h3>
+                <p>ID: {student.id || 'N/A'}</p>
+                <p>{student.email || 'Email non disponible'}</p>
+                <p><strong>Classe: </strong>{getStudentClassName(student)}</p>
               </div>
-            );
-          })}
+              <div className="card-actions">
+                <button onClick={() => handleEdit(student.id)}>
+                  Modifier
+                </button>
+                <button 
+                  className="btn-delete"
+                  onClick={() => handleDelete(student.id, student.name)}
+                >
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
