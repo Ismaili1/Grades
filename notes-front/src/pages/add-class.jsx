@@ -23,7 +23,7 @@ function AddClassForm() {
       setSuccess("Classe ajoutée avec succès.");
       setError("");
       setTimeout(function () {
-        navigate("/admin-dashboard");
+        navigate("/admin/dashboard");
       }, 1500);
     })
     .catch(function (error) {

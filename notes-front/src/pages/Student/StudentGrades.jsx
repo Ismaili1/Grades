@@ -192,10 +192,7 @@ const StudentGrades = () => {
             <option value={1}>2023-2024</option>
             <option value={2}>2024-2025</option>
           </select>
-          <button className="export-button">
-            <Download />
-            <span>Exporter</span>
-          </button>
+
         </div>
       </div>
 

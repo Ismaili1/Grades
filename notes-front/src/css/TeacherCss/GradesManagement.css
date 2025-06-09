@@ -1,101 +1,275 @@
-.grade-period-cell {
+/* GradesManagement.css */
+
+.gestion-notes-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.grades-loading,
+.grades-error {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  text-align: center;
 }
-.grade-period-cell .edit-button,
-.grade-period-cell .delete-button {
-  margin: 2px 0;
-  width: 90px;
+
+.error-message {
+  color: #d32f2f;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.retry-button {
+  padding: 0.5rem 1rem;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.retry-button:hover {
+  background-color: #1565c0;
+}
+
+.feedback-message {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+  background-color: #4caf50;
+  color: white;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.form-section {
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.form-section h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.grade-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-row label {
+  min-width: 150px;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-row input[type="text"],
+.form-row input[type="number"],
+.form-row select {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.submit-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #388e3c;
+}
+
+.submit-button:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.cancel-button:hover {
+  background-color: #d32f2f;
+}
+
+.cancel-button:disabled {
+  background-color: #ef9a9a;
+  cursor: not-allowed;
+}
+
+.grades-list {
+  margin-top: 2rem;
+}
+
+.grades-list h3 {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.grades-filters select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.9rem;
+}
+
+.no-grades {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.grades-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.grades-table th,
+.grades-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.grades-table th {
+  background-color: #f5f5f5;
+  font-weight: 500;
+  color: #333;
+}
+
+.grades-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.grade-period-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.grade-period-actions {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.grades-table tr:hover .grade-period-actions {
+  opacity: 1;
 }
 
 .icon-button {
   background: none;
   border: none;
-  padding: 4px;
-  margin: 0;
   cursor: pointer;
-  font-size: 1.1em;
-  display: inline-flex;
+  padding: 0.25rem;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: background 0.2s;
+  transition: background-color 0.2s;
 }
-.icon-button.edit-icon {
-  color: #f59e0b; /* orange-400 */
+
+.icon-button:hover {
+  background-color: #f0f0f0;
 }
-.icon-button.delete-icon {
-  color: #ef4444; /* red-500 */
+
+.edit-icon {
+  color: #2196f3;
 }
+
+.delete-icon {
+  color: #f44336;
+}
+
 .icon-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.icon-button:hover:not(:disabled) {
-  background: #f3f4f6;
-}
 
-.grade-period-actions {
-  display: flex;
-  flex-direction: row;
-  gap: 4px;
-  margin-top: 2px;
-}
-
-.feedback-message {
-  background: linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%);
-  color: #fff;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 500;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
-  animation: fadeInOut 3s linear;
-}
-
-@keyframes fadeInOut {
-  0% {
-    opacity: 0;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  10% {
-    opacity: 1;
+  
+  .form-row label {
+    margin-bottom: 0.5rem;
   }
-  90% {
-    opacity: 1;
+  
+  .grades-table {
+    display: block;
+    overflow-x: auto;
   }
-  100% {
-    opacity: 0;
+  
+  .grades-filters {
+    flex-direction: column;
   }
-}
-
-.grades-list {
-  width: 100%;
-  overflow-x: visible !important;
-  overflow-y: visible !important;
-  padding: 0;
-  margin: 0;
-}
-
-.grades-table {
-  width: 100%;
-  min-width: 0;
-  border-collapse: collapse;
-  table-layout: auto;
-  overflow-x: visible !important;
-  overflow-y: visible !important;
-}
-
-.grades-table th,
-.grades-table td {
-  white-space: nowrap;
-  padding: 0.75rem 1rem;
-  text-align: left;
-}
-
-.grades-table thead {
-  background: linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%);
-  color: #fff;
 }

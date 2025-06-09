@@ -67,7 +67,7 @@ function AddStudent() {
       });
 
       setTimeout(function () {
-        navigate("/admin");
+        navigate("/admin/dashboard");
       }, 2000);
     })
     .catch(function (error) {
