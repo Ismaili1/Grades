@@ -277,7 +277,7 @@ tr td:last-child {
   justify-content: flex-start;
 }
 
-.grade-period-actions {
+.form-actions {
   display: flex;
   align-items: center;
   gap: 0.1rem;
