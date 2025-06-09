@@ -152,139 +152,151 @@ function TeacherDashboard() {
   }
 
   return (
-    <div className="dashboard-container">
-      <h2>Tableau de bord – Enseignant</h2>
+    <div className="teacher-dashboard-page">
+      <div className="dashboard-container">
+      <h1>Tableau de bord – Enseignant</h1>
 
-      {/* Grade Distribution Histogram */}
-      <section className="chart-section">
-        <h3>Distribution des notes</h3>
-        {gradeDistribution.length === 0 ? (
-          <p style={{ color: "#888" }}>
-            Aucune donnée de distribution disponible.
-          </p>
-        ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={gradeDistribution}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="range" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="count" fill="#8884d8" name="Nombre d'élèves" />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </section>
-
-      {/* Top & Bottom Scorers */}
-      <section className="chart-section">
-        <h3>Performance des élèves (Top 3 & Flop 3)</h3>
-        <div className="student-performance-summary">
-          <div className="performance-columns">
-            <div>
-              <h4>Top 3</h4>
-              <table className="performance-table">
-                <thead>
-                  <tr>
-                    <th>Élève</th>
-                    <th>Moyenne</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topBottomScorers.top.map((s) => (
-                    <tr key={s.id}>
-                      <td>{s.name}</td>
-                      <td>{s.average}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      <div className="dashboard-content">
+        {/* Grade Distribution Histogram */}
+        <section className="chart-section">
+          <h3>Distribution des notes</h3>
+          {gradeDistribution.length === 0 ? (
+            <p style={{ color: "#888" }}>
+              Aucune donnée de distribution disponible.
+            </p>
+          ) : (
+            <div style={{ flex: 1 }}>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={gradeDistribution}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="range" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="count" fill="#7b2ff7" name="Nombre d'élèves" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-            <div>
-              <h4>Flop 3</h4>
-              <table className="performance-table">
-                <thead>
-                  <tr>
-                    <th>Élève</th>
-                    <th>Moyenne</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topBottomScorers.bottom.map((s) => (
-                    <tr key={s.id}>
-                      <td>{s.name}</td>
-                      <td>{s.average}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          )}
+        </section>
+
+        {/* Top & Bottom Scorers - List Version */}
+        <section className="performance-section">
+          <h3>Performance des élèves</h3>
+          <div className="student-performance-summary">
+            <div className="performance-columns">
+              <div>
+                <h4>Top 3</h4>
+                <ul>
+                  {topBottomScorers.top.length > 0 ? (
+                    topBottomScorers.top.map((s) => (
+                      <li key={s.id}>
+                        <span className="student-name">{s.name}</span>
+                        <span className="student-average">{s.average}/20</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li>Aucune donnée disponible</li>
+                  )}
+                </ul>
+              </div>
+              <div>
+                <h4>Flop 3</h4>
+                <ul>
+                  {topBottomScorers.bottom.length > 0 ? (
+                    topBottomScorers.bottom.map((s) => (
+                      <li key={s.id}>
+                        <span className="student-name">{s.name}</span>
+                        <span className="student-average">{s.average}/20</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li>Aucune donnée disponible</li>
+                  )}
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      {/* Mes classes */}
-      <section className="teacher-classes-section">
-        <h3>Mes classes</h3>
-        {classes.length === 0 ? (
-          <p>Aucune classe assignée.</p>
-        ) : (
-          <ul>
-            {classes.map((classe) => (
-              <li key={classe.id}>{classe.name}</li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {/* Subjects and Classes */}
+      <div className="info-sections">
+        {/* Mes matières */}
+        <section className="teacher-subjects-section">
+          <h3>Mes matières</h3>
+          {subjects.length === 0 ? (
+            <p>Aucune matière assignée.</p>
+          ) : (
+            <ul>
+              {subjects.map((item, idx) => (
+                <li key={idx}>
+                  <strong>{item.subject.name}</strong>
+                  <div className="class-list">
+                    Classes: {item.classes.map(c => c.name).join(", ")}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
-      {/* Matières */}
-      <section className="teacher-subjects-section">
-        <h3>Mes matières</h3>
-        {subjects.length === 0 ? (
-          <p>Aucune matière assignée.</p>
-        ) : (
-          <ul>
-            {subjects.map((item, idx) => (
-              <li key={idx}>
-                {item.subject.name} (Classes :{" "}
-                {item.classes.map((c) => c.name).join(", ")})
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+        {/* Mes classes */}
+        <section className="teacher-classes-section">
+          <h3>Mes classes</h3>
+          {classes.length === 0 ? (
+            <p>Aucune classe assignée.</p>
+          ) : (
+            <ul>
+              {classes.map((classe) => (
+                <li key={classe.id}>
+                  <span>{classe.name}</span>
+                  <span className="class-stats">
+                    {classe.student_count || 0} élèves
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
 
-      {/* Activité récente */}
+      {/* Recent Activity Section */}
       <section className="recent-activity-section">
         <h3>Activité récente</h3>
         {recentActivities.length === 0 ? (
           <p className="no-activity">Aucune activité récente.</p>
         ) : (
-          <table className="recent-table">
-            <thead>
-              <tr>
-                <th>Élève</th>
-                <th>Matière</th>
-                <th>Note</th>
-                <th>Mis à jour</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentActivities.map((grade) => (
-                <tr key={grade.id}>
-                  <td>{grade.student?.user?.name || "Inconnu"}</td>
-                  <td>{grade.subject?.name || "Inconnue"}</td>
-                  <td>
-                    {grade.grading_period ? `${grade.grading_period}: ` : ""}
-                    {grade.grade}/20
-                  </td>
-                  <td>{formatDate(grade.updated_at)}</td>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Élève</th>
+                  <th>Matière</th>
+                  <th>Note</th>
+                  <th>Année</th>
+                  <th>Mis à jour</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentActivities.map((grade) => (
+                  <tr key={grade.id}>
+                    <td>{grade.student?.user?.name || "Inconnu"}</td>
+                    <td>{grade.subject?.name || "Inconnue"}</td>
+                    <td>
+                      {grade.grading_period ? `${grade.grading_period}: ` : ""}
+                      <strong>{grade.grade}/20</strong>
+                    </td>
+                    <td>{grade.academic_year?.name || "—"}</td>
+                    <td>{formatDate(grade.updated_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
+      </div>
     </div>
   );
 }

@@ -317,37 +317,39 @@ function GradesManagement() {
         }}
       >
         <h2>Gestion des notes</h2>
-        <button
-          className="ajouter-toggle-button"
-          onClick={() => {
-            setShowForm((prev) => !prev);
-            setFormMode("add");
-            setEditGradeId(null);
-            setFormData({
-              student_id: "",
-              subject_id: "",
-              academic_year_id: "",
-              grade: "",
-              grading_period: "",
-            });
-          }}
-          disabled={showForm && formMode === "edit"}
-          style={{
-            minWidth: "180px",
-            padding: "0.75rem 1.5rem",
-            fontWeight: "bold",
-            fontSize: "1rem",
-            borderRadius: "8px",
-            background: "linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%)",
-            color: "#fff",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          {showForm && formMode === "add"
-            ? "Fermer le formulaire"
-            : "Ajouter une note"}
-        </button>
+        {!showForm && (
+          <button
+            className="ajouter-toggle-button"
+            onClick={() => {
+              setShowForm((prev) => !prev);
+              setFormMode("add");
+              setEditGradeId(null);
+              setFormData({
+                student_id: "",
+                subject_id: "",
+                academic_year_id: "",
+                grade: "",
+                grading_period: "",
+              });
+            }}
+            disabled={showForm && formMode === "edit"}
+            style={{
+              minWidth: "180px",
+              padding: "0.75rem 1.5rem",
+              fontWeight: "bold",
+              fontSize: "1rem",
+              borderRadius: "8px",
+              background: "linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%)",
+              color: "#fff",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {showForm && formMode === "add"
+              ? "Fermer le formulaire"
+              : "Ajouter une note"}
+          </button>
+        )}
       </div>
 
       {showForm && (
@@ -360,7 +362,7 @@ function GradesManagement() {
               <label>Classe :</label>
               <div className="radio-group">
                 {classes.map((classe) => (
-                  <label key={classe.id} style={{ marginRight: "1rem" }}>
+                  <label key={classe.id} className="custom-radio-label">
                     <input
                       type="radio"
                       name="class_id"
@@ -369,8 +371,9 @@ function GradesManagement() {
                       onChange={(e) => setSelectedClassId(e.target.value)}
                       disabled={formMode === "edit" || isSubmitting}
                       required
+                      className="custom-radio"
                     />
-                    {classe.name}
+                    <span className="custom-radio-span">{classe.name}</span>
                   </label>
                 ))}
               </div>
@@ -480,13 +483,12 @@ function GradesManagement() {
               </button>
               <button
                 type="button"
+                className="btn-annuler"
                 onClick={() => {
                   setShowForm(false);
                   resetForm();
                 }}
-                className="cancel-button"
                 disabled={isSubmitting}
-                style={{ marginLeft: "1rem" }}
               >
                 Annuler
               </button>
@@ -565,7 +567,7 @@ function GradesManagement() {
                               onClick={() =>
                                 handleEditClick(entry.grades[period])
                               }
-                              className="icon-button edit-icon"
+                              className="icon-btn-small modify"
                               disabled={isSubmitting}
                               title="Modifier"
                             >
@@ -575,7 +577,7 @@ function GradesManagement() {
                               onClick={() =>
                                 handleDeleteClick(entry.grades[period].id)
                               }
-                              className="icon-button delete-icon"
+                              className="icon-btn-small delete"
                               disabled={isSubmitting}
                               title="Supprimer"
                             >
