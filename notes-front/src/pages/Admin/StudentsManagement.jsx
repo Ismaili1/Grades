@@ -12,7 +12,7 @@ import {
   FiAlertCircle,
   FiInfo,
 } from "react-icons/fi";
-import "../../css/Admin/StudentsManagement.css";
+import "../../css/Admin/studentsmanagement.css";
 
 // Composant de message de feedback
 const FeedbackMessage = ({ type, message, onClose }) => {
@@ -52,7 +52,7 @@ const StudentForm = ({
   <div className="student-form-container">
     <h3>{mode === "add" ? "Ajouter un étudiant" : "Modifier l'étudiant"}</h3>
     <form onSubmit={onSubmit} className="student-form">
-      <div className="form-group">
+      <div className="form-row">
         <label>Nom complet</label>
         <input
           type="text"
@@ -64,25 +64,21 @@ const StudentForm = ({
             const email = value
               ? value
                   .toLowerCase()
-                  .normalize("NFD") // Normalize accented characters
-                  .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
-                  .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/[^a-z0-9\s-]/g, "")
                   .trim()
-                  .replace(/\s+/g, ".") // Replace spaces with dots
-                  .replace(/\.+/g, ".") // Replace multiple dots with a single dot
-                  .replace(/\.?@/, "@") // Handle case where dot might be before @
-                  .replace(/[^a-z0-9@.-]/g, "") // Remove any remaining invalid characters
-                  .replace(/^[^a-z0-9]|[^a-z0-9]$/g, "") // Remove non-alphanumeric start/end
-                  .replace(/@.*$/, "") // Remove existing domain if any
-                  .substring(0, 30) // Limit length
-                  .replace(/\.+$/, "") + // Remove trailing dots
-                "@school.ma"
+                  .replace(/\s+/g, ".")
+                  .replace(/\.+/g, ".")
+                  .replace(/\.?@/, "@")
+                  .replace(/[^a-z0-9@.-]/g, "")
+                  .replace(/^[^a-z0-9]|[^a-z0-9]$/g, "")
+                  .replace(/@.*$/, "")
+                  .substring(0, 30)
+                  .replace(/\.+$/, "") + "@school.ma"
               : "";
 
-            // Update the name first
             onFormChange(e);
-
-            // Then update the email
             onFormChange({
               target: {
                 name: "email",
@@ -95,7 +91,7 @@ const StudentForm = ({
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-row">
         <label>Email</label>
         <input
           type="email"
@@ -107,7 +103,7 @@ const StudentForm = ({
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-row">
         <label>Classe</label>
         <select
           name="class_id"
@@ -125,7 +121,7 @@ const StudentForm = ({
       </div>
 
       {mode === "add" && (
-        <div className="form-group">
+        <div className="form-row">
           <label>Mot de passe</label>
           <div className="form-group">
             <input
@@ -148,13 +144,13 @@ const StudentForm = ({
       <div className="form-actions">
         <button
           type="button"
-          className="btn btn-cancel"
+          className="btn-annuler"
           onClick={onCancel}
           disabled={loading}
         >
           <FiX /> Annuler
         </button>
-        <button type="submit" className="btn btn-submit" disabled={loading}>
+        <button type="submit" className="submit-button" disabled={loading}>
           {loading ? (
             "Enregistrement..."
           ) : (
@@ -548,14 +544,14 @@ function StudentsManagement() {
       <div className="page-header">
         <h1 className="page-title">Gestion des Étudiants</h1>
         {!showForm && (
-          <button className="btn btn-add" onClick={toggleForm}>
+          <button className="ajouter-toggle-button" onClick={toggleForm}>
             <FiUserPlus /> Ajouter un étudiant
           </button>
         )}
       </div>
 
       {showForm && (
-        <div ref={formRef}>
+        <div className="form-section">
           <StudentForm
             formData={formData}
             onSubmit={handleFormSubmit}
@@ -568,7 +564,7 @@ function StudentsManagement() {
         </div>
       )}
 
-      <div className="form-group">
+      <div className="form-row">
         <label htmlFor="class-select">Sélectionner une classe</label>
         <select
           id="class-select"
@@ -621,13 +617,13 @@ function StudentsManagement() {
                   <td className="actions-cell">
                     <button
                       onClick={() => handleEdit(student)}
-                      className="btn btn-edit btn-edit-orange"
+                      className="icon-btn-small modify"
                       title="Modifier"
                     >
                       <FiEdit />
                     </button>
                     <button
-                      className="btn btn-delete"
+                      className="icon-btn-small delete"
                       onClick={() => handleDelete(student.id, student.name)}
                       title="Supprimer"
                     >

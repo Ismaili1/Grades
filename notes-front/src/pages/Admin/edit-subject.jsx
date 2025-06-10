@@ -1,51 +1,55 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import '../../css/admin/editsubject.css';
+// import '../../css/admin/editsubject.css';
 
 function EditSubject() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [subject, setSubject] = useState({
-    name: ''
+    name: "",
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  useEffect(function() {
-    const token = localStorage.getItem("token");
+  useEffect(
+    function () {
+      const token = localStorage.getItem("token");
 
-    if (!token) {
-      setError("Vous devez être connecté.");
-      setLoading(false);
-      return;
-    }
-
-    // Fetch subject data
-    axios.get(`http://localhost:8000/api/subjects/${id}`, {
-      headers: {
-        Authorization: "Bearer " + token
+      if (!token) {
+        setError("Vous devez être connecté.");
+        setLoading(false);
+        return;
       }
-    })
-    .then(function(response) {
-      setSubject({
-        name: response.data.name
-      });
-      setLoading(false);
-    })
-    .catch(function(error) {
-      console.error("Error:", error);
-      setError("Erreur lors du chargement de la matière.");
-      setLoading(false);
-    });
-  }, [id]);
+
+      // Fetch subject data
+      axios
+        .get(`http://localhost:8000/api/subjects/${id}`, {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        })
+        .then(function (response) {
+          setSubject({
+            name: response.data.name,
+          });
+          setLoading(false);
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          setError("Erreur lors du chargement de la matière.");
+          setLoading(false);
+        });
+    },
+    [id]
+  );
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setSubject(prev => ({
+    setSubject((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   }
 
@@ -53,22 +57,25 @@ function EditSubject() {
     e.preventDefault();
     setError("");
     setSuccess("");
-    
+
     const token = localStorage.getItem("token");
 
-    axios.put(`http://localhost:8000/api/subjects/${id}`, subject, {
-      headers: {
-        Authorization: "Bearer " + token
-      }
-    })
-    .then(function() {
-      setSuccess("Matière mise à jour avec succès!");
-      setTimeout(() => navigate("/admin/subjects"), 1500);
-    })
-    .catch(function(error) {
-      console.error("Update Error:", error);
-      setError(error.response?.data?.message || "Erreur lors de la mise à jour");
-    });
+    axios
+      .put(`http://localhost:8000/api/subjects/${id}`, subject, {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then(function () {
+        setSuccess("Matière mise à jour avec succès!");
+        setTimeout(() => navigate("/admin/subjects"), 1500);
+      })
+      .catch(function (error) {
+        console.error("Update Error:", error);
+        setError(
+          error.response?.data?.message || "Erreur lors de la mise à jour"
+        );
+      });
   }
 
   function goBack() {
@@ -82,7 +89,9 @@ function EditSubject() {
   return (
     <div className="edit-subject-container">
       <div className="edit-subject-header">
-        <button className="back-button" onClick={goBack}>← Retour</button>
+        <button className="back-button" onClick={goBack}>
+          ← Retour
+        </button>
         <h1 className="page-title">Modifier la Matière</h1>
       </div>
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import '../../css/admin/add-subject.css'
+// import '../../css/admin/add-subject.css'
 
 function AddSubject() {
   const [name, setName] = useState("");
@@ -18,24 +18,29 @@ function AddSubject() {
 
     const token = localStorage.getItem("token");
 
-    axios.post("http://localhost:8000/api/subjects", {
-      name: name
-    }, {
-      headers: {
-        Authorization: "Bearer " + token
-      }
-    })
-    .then(function () {
-      setSuccess("Matière ajoutée avec succès !");
-      setName("");
+    axios
+      .post(
+        "http://localhost:8000/api/subjects",
+        {
+          name: name,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      )
+      .then(function () {
+        setSuccess("Matière ajoutée avec succès !");
+        setName("");
 
-      setTimeout(function () {
-        navigate("/admin/dashboard");
-      }, 2000);
-    })
-    .catch(function (error) {
-      setError("Erreur lors de l'ajout de la matière.");
-    });
+        setTimeout(function () {
+          navigate("/admin/dashboard");
+        }, 2000);
+      })
+      .catch(function (error) {
+        setError("Erreur lors de l'ajout de la matière.");
+      });
   }
 
   return (
@@ -48,12 +53,7 @@ function AddSubject() {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Nom de la matière</label>
-          <input
-            type="text"
-            value={name}
-            onChange={handleChange}
-            required
-          />
+          <input type="text" value={name} onChange={handleChange} required />
         </div>
 
         <button type="submit">Ajouter</button>

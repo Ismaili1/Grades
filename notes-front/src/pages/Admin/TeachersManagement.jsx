@@ -12,7 +12,7 @@ import {
   FiAlertCircle,
   FiInfo,
 } from "react-icons/fi";
-import "../../css/Admin/TeachersManagement.css";
+import "../../css/Admin/teachersmanagement.css";
 
 // Feedback Message Component
 const FeedbackMessage = ({ type, message, onClose }) => {
@@ -55,7 +55,7 @@ const TeacherForm = ({
       {mode === "add" ? "Ajouter un enseignant" : "Modifier l'enseignant"}
     </h3>
     <form onSubmit={onSubmit} className="teacher-form">
-      <div className="form-group">
+      <div className="form-row">
         <label>Nom complet</label>
         <input
           type="text"
@@ -94,7 +94,7 @@ const TeacherForm = ({
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-row">
         <label>Email</label>
         <input
           type="email"
@@ -106,7 +106,7 @@ const TeacherForm = ({
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-row">
         <label>Matières</label>
         <div className="tm-subjects-scroll">
           {subjects.map((subject) => (
@@ -136,7 +136,7 @@ const TeacherForm = ({
         </div>
       </div>
 
-      <div className="form-group">
+      <div className="form-row">
         <label>Classes</label>
         <div className="tm-classes-scroll">
           {classes.map((cls) => (
@@ -167,7 +167,7 @@ const TeacherForm = ({
       </div>
 
       {mode === "add" && (
-        <div className="form-group">
+        <div className="form-row">
           <label>Mot de passe</label>
           <div className="form-group">
             <input
@@ -190,13 +190,13 @@ const TeacherForm = ({
       <div className="form-actions">
         <button
           type="button"
-          className="btn btn-cancel"
+          className="btn-annuler"
           onClick={onCancel}
           disabled={loading}
         >
           <FiX /> Annuler
         </button>
-        <button type="submit" className="btn btn-submit" disabled={loading}>
+        <button type="submit" className="submit-button" disabled={loading}>
           {loading ? (
             "Enregistrement..."
           ) : (
@@ -517,34 +517,39 @@ function TeachersManagement() {
       <div className="page-header">
         <h1 className="page-title">Gestion des Enseignants</h1>
         {!showForm && (
-          <button className="btn btn-add" onClick={() => setShowForm(true)}>
+          <button
+            className="ajouter-toggle-button"
+            onClick={() => setShowForm(true)}
+          >
             <FiUserPlus /> Ajouter un enseignant
           </button>
         )}
       </div>
 
       {showForm && (
-        <TeacherForm
-          formData={formData}
-          onSubmit={handleFormSubmit}
-          onCancel={() => {
-            setShowForm(false);
-            setFormMode("add");
-            setCurrentTeacherId(null);
-            setFormData({
-              name: "",
-              email: "",
-              password: "Teacher@123",
-              subjects: [],
-              classes: [],
-            });
-          }}
-          onFormChange={handleFormChange}
-          mode={formMode}
-          subjects={subjects}
-          classes={classes}
-          loading={isSubmitting}
-        />
+        <div className="form-section">
+          <TeacherForm
+            formData={formData}
+            onSubmit={handleFormSubmit}
+            onCancel={() => {
+              setShowForm(false);
+              setFormMode("add");
+              setCurrentTeacherId(null);
+              setFormData({
+                name: "",
+                email: "",
+                password: "Teacher@123",
+                subjects: [],
+                classes: [],
+              });
+            }}
+            onFormChange={handleFormChange}
+            mode={formMode}
+            subjects={subjects}
+            classes={classes}
+            loading={isSubmitting}
+          />
+        </div>
       )}
 
       <div className="table-container">
@@ -567,13 +572,13 @@ function TeachersManagement() {
                 <td className="actions-cell">
                   <button
                     onClick={() => handleEdit(teacher)}
-                    className="btn btn-edit btn-edit-orange"
+                    className="icon-btn-small modify"
                     title="Modifier"
                   >
                     <FiEdit />
                   </button>
                   <button
-                    className="btn btn-delete"
+                    className="icon-btn-small delete"
                     onClick={() => handleDelete(teacher.id, teacher.name)}
                     title="Supprimer"
                   >
