@@ -11,12 +11,16 @@
   max-width: 100%;
   margin: 0;
   padding: 0;
+  text-align: left;
 }
 
 .dashboard-content {
   margin-top: 1.5rem;
   width: 100%;
   max-width: 1400px;
+  margin-left: 0;
+  margin-right: auto;
+  text-align: left;
 }
 
 .dashboard-layout {
@@ -182,12 +186,12 @@
   .dashboard-layout {
     flex-direction: column;
   }
-  
+
   .performance-columns {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
+
   .subjects-container,
   .performance-container {
     width: 100%;
@@ -198,20 +202,20 @@
   .teacher-dashboard-page {
     padding: 1rem 0;
   }
-  
+
   .dashboard-container {
     padding: 0 0.75rem;
   }
-  
+
   .subjects-list {
     grid-template-columns: 1fr;
   }
-  
+
   .subject-info {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .subject-icon {
     margin-bottom: 0.75rem;
   }

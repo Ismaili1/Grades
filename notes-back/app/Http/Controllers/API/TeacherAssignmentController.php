@@ -30,9 +30,10 @@ class TeacherAssignmentController extends Controller
             ->exists();
         
         if ($exists) {
+            // Just return success, don't error
             return response()->json([
-                'message' => 'Cet enseignant est déjà assigné à cette matière dans cette classe'
-            ], 422);
+                'message' => 'Enseignant déjà assigné à cette matière dans cette classe'
+            ], 200);
         }
         
         $teacher->subjects()->attach($request->subject_id, ['class_id' => $request->class_id]);
@@ -167,5 +168,67 @@ class TeacherAssignmentController extends Controller
         $class = SchoolClass::findOrFail($id);
         $students = $class->students()->with('user')->get();
         return response()->json($students);
+    }
+
+    public function batchAssign(Request $request)
+    {
+        $request->validate([
+            'assignments' => 'required|array|min:1',
+            'assignments.*.teacher_id' => 'required|exists:teachers,id',
+            'assignments.*.subject_id' => 'required|exists:subjects,id',
+            'assignments.*.class_id' => 'required|exists:classes,id',
+        ]);
+
+        $assignments = collect($request->assignments);
+        $grouped = $assignments->groupBy('teacher_id');
+
+        foreach ($grouped as $teacherId => $teacherAssignments) {
+            $teacher = \App\Models\Teacher::find($teacherId);
+
+            // Build a list of new assignments (subject_id, class_id)
+            $newAssignments = $teacherAssignments->map(function ($a) {
+                return [
+                    'subject_id' => $a['subject_id'],
+                    'class_id' => $a['class_id'],
+                ];
+            })->toArray();
+
+            // Remove all old assignments for this teacher that are not in the new list
+            $allOld = DB::table('teacher_subject')
+                ->where('teacher_id', $teacherId)
+                ->get(['subject_id', 'class_id']);
+
+            foreach ($allOld as $old) {
+                $stillExists = collect($newAssignments)->contains(function ($a) use ($old) {
+                    return $a['subject_id'] == $old->subject_id && $a['class_id'] == $old->class_id;
+                });
+                if (!$stillExists) {
+                    DB::table('teacher_subject')
+                        ->where('teacher_id', $teacherId)
+                        ->where('subject_id', $old->subject_id)
+                        ->where('class_id', $old->class_id)
+                        ->delete();
+                }
+            }
+
+            // Now attach new assignments (only those not already existing)
+            // Refresh the existing assignments after deletions
+            $existing = DB::table('teacher_subject')
+                ->where('teacher_id', $teacherId)
+                ->get(['subject_id', 'class_id'])
+                ->map(function ($row) {
+                    return $row->subject_id . '-' . $row->class_id;
+                })->toArray();
+
+            foreach ($teacherAssignments as $a) {
+                $key = $a['subject_id'] . '-' . $a['class_id'];
+                if (!in_array($key, $existing)) {
+                    $teacher->subjects()->attach($a['subject_id'], ['class_id' => $a['class_id']]);
+                    $existing[] = $key;
+                }
+            }
+        }
+
+        return response()->json(['message' => 'Batch assignment processed.'], 200);
     }
 }

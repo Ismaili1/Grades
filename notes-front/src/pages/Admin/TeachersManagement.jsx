@@ -108,7 +108,7 @@ const TeacherForm = ({
 
       <div className="form-group">
         <label>Matières</label>
-        <div className="subjects-grid">
+        <div className="tm-subjects-scroll">
           {subjects.map((subject) => (
             <div key={subject.id} className="subject-checkbox">
               <input
@@ -138,7 +138,7 @@ const TeacherForm = ({
 
       <div className="form-group">
         <label>Classes</label>
-        <div className="classes-grid">
+        <div className="tm-classes-scroll">
           {classes.map((cls) => (
             <div key={cls.id} className="class-checkbox">
               <input
@@ -246,7 +246,7 @@ function TeachersManagement() {
       try {
         setLoading(true);
         const [teachersRes, subjectsRes, classesRes] = await Promise.all([
-          axios.get(`${API_URL}/users?role=${ROLE_ENSEIGNANT}`, {
+          axios.get(`${API_URL}/users?role=${ROLE_ENSEIGNANT}&per_page=1000`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get(`${API_URL}/subjects`, {
@@ -373,10 +373,14 @@ function TeachersManagement() {
       }
 
       // Create assignments
-      for (const assignment of assignments) {
-        await axios.post(`${API_URL}/assignments`, assignment, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+      if (assignments.length > 0) {
+        await axios.post(
+          `${API_URL}/assignments/batch`,
+          { assignments },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
       }
 
       showFeedback(
@@ -388,7 +392,7 @@ function TeachersManagement() {
 
       // Refresh the teachers list
       const response = await axios.get(
-        `${API_URL}/users?role=${ROLE_ENSEIGNANT}`,
+        `${API_URL}/users?role=${ROLE_ENSEIGNANT}&per_page=1000`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -429,6 +433,7 @@ function TeachersManagement() {
   };
 
   const handleEdit = async (teacher) => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     const token = localStorage.getItem("token");
     if (!token) return;
 
@@ -562,7 +567,7 @@ function TeachersManagement() {
                 <td className="actions-cell">
                   <button
                     onClick={() => handleEdit(teacher)}
-                    className="btn btn-edit"
+                    className="btn btn-edit btn-edit-orange"
                     title="Modifier"
                   >
                     <FiEdit />

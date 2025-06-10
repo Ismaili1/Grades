@@ -338,3 +338,27 @@
     grid-template-columns: 1fr;
   }
 }
+
+.teachers-management .tm-subjects-scroll,
+.teachers-management .tm-classes-scroll {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-gray-light);
+}
+
+.btn-edit-orange {
+  background-color: #ffa940 !important;
+  color: white !important;
+  border: none;
+}
+
+.btn-edit-orange:hover {
+  background-color: #fa8c16 !important;
+}

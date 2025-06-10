@@ -17,7 +17,7 @@ import BulletinScolaire from "./pages/Teacher/etudiants";
 // Admin Pages
 import AddClassForm from "./pages/Admin/add-class";
 import AddSubject from "./pages/Admin/add-subject";
-import AddTeacher from "./pages/Admin/add-teacher";
+
 import ClassStudents from "./pages/Admin/ClassStudent";
 
 import StudentsManagement from "./pages/Admin/StudentsManagement";
@@ -26,7 +26,7 @@ import SubjectsManagement from "./pages/Admin/SubjectsManagement";
 import ClassesManagement from "./pages/Admin/ClassesManagement";
 
 import EditSubject from "./pages/Admin/edit-subject";
-import EditTeacher from "./pages/Admin/edit-teacher";
+
 import EditClass from "./pages/Admin/edit-class";
 
 function App() {
@@ -41,7 +41,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="add-class" element={<AddClassForm />} />
           <Route path="add-subject" element={<AddSubject />} />
-          <Route path="add-teacher" element={<AddTeacher />} />
+
           <Route path="class/:id" element={<ClassStudents />} />
 
           {/* Management Routes */}
@@ -52,7 +52,7 @@ function App() {
 
           {/* Edit Routes */}
           <Route path="edit-subject/:id" element={<EditSubject />} />
-          <Route path="edit-teacher/:id" element={<EditTeacher />} />
+
           <Route path="edit-class/:id" element={<EditClass />} />
         </Route>
 
@@ -66,7 +66,7 @@ function App() {
         {/* Student Routes */}
         <Route path="/étudiant" element={<Layout />}>
           <Route path="dashboard" element={<StudentDashboard />} />
-          <Route path="grades" element={<StudentGrades/>}/>
+          <Route path="grades" element={<StudentGrades />} />
         </Route>
       </Routes>
     </BrowserRouter>

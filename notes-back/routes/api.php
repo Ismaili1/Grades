@@ -59,6 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // 👨‍🏫 Teacher Assignments
         Route::get('/assignments', [TeacherAssignmentController::class, 'index']);
         Route::post('/assignments', [TeacherAssignmentController::class, 'assign']);
+        Route::post('/assignments/batch', [TeacherAssignmentController::class, 'batchAssign']);
         Route::delete('/assignments', [TeacherAssignmentController::class, 'unassign']);
         Route::get('/teachers/{teacherId}/subjects', [TeacherAssignmentController::class, 'teacherSubjects']);
     });

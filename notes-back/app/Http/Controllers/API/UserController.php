@@ -31,7 +31,8 @@ public function index(Request $request)
         }
     }
     
-    $users = $query->paginate(10);
+    $perPage = $request->input('per_page', 10);
+    $users = $query->paginate($perPage);
     
     return response()->json($users);
  }
