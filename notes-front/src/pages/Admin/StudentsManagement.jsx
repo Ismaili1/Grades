@@ -1,13 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { FiPlus, FiEdit, FiTrash2, FiX, FiSave, FiUserPlus } from 'react-icons/fi';
+import { FiPlus, FiEdit, FiTrash2, FiX, FiSave, FiUserPlus, FiCheckCircle, FiXCircle, FiAlertCircle, FiInfo } from 'react-icons/fi';
 import '../../css/Admin/StudentsManagement.css';
+
+// Composant de message de feedback
+const FeedbackMessage = ({ type, message, onClose }) => {
+  const iconMap = {
+    success: <FiCheckCircle className="feedback-icon" />,
+    error: <FiXCircle className="feedback-icon" />,
+    warning: <FiAlertCircle className="feedback-icon" />,
+    info: <FiInfo className="feedback-icon" />
+  };
+
+  return (
+    <div className={`feedback-message feedback-${type}`}>
+      <div className="feedback-content">
+        {iconMap[type]}
+        <span>{message}</span>
+      </div>
+      <button className="feedback-close" onClick={onClose}>
+        <FiX size={16} />
+      </button>
+    </div>
+  );
+};
 
 const API_URL = 'http://localhost:8000/api';
 const ROLE_ETUDIANT = 'étudiant';
 
 // Form component for adding/editing students
-const StudentForm = ({ formData, onSubmit, onCancel, mode, classes, loading }) => (
+const StudentForm = ({ formData, onSubmit, onCancel, mode, classes, loading, onFormChange }) => (
   <div className="student-form-container">
     <h3>{mode === 'add' ? 'Ajouter un étudiant' : 'Modifier l\'étudiant'}</h3>
     <form onSubmit={onSubmit} className="student-form">
@@ -19,22 +41,35 @@ const StudentForm = ({ formData, onSubmit, onCancel, mode, classes, loading }) =
           value={formData.name}
           onChange={(e) => {
             const value = e.target.value;
-            // Generate email based on name
+            // Generate email based on name (remove accents and special chars)
             const email = value 
-              ? value.toLowerCase().replace(/\s+/g, '.') + '@school.ma'
+              ? value
+                  .toLowerCase()
+                  .normalize('NFD') // Normalize accented characters
+                  .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+                  .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+                  .trim()
+                  .replace(/\s+/g, '.') // Replace spaces with dots
+                  .replace(/\.+/g, '.') // Replace multiple dots with a single dot
+                  .replace(/\.?@/, '@') // Handle case where dot might be before @
+                  .replace(/[^a-z0-9@.-]/g, '') // Remove any remaining invalid characters
+                  .replace(/^[^a-z0-9]|[^a-z0-9]$/g, '') // Remove non-alphanumeric start/end
+                  .replace(/@.*$/, '') // Remove existing domain if any
+                  .substring(0, 30) // Limit length
+                  .replace(/\.+$/, '') + // Remove trailing dots
+                  '@school.ma'
               : '';
             
-            // Update both name and email
-            onSubmit({
-              target: { 
+            // Update the name first
+            onFormChange(e);
+            
+            // Then update the email
+            onFormChange({
+              target: {
                 name: 'email',
                 value: email
               }
-            }, true);
-            
-            // Update the name
-            e.persist();
-            onSubmit(e);
+            });
           }}
           required
           placeholder="Nom complet"
@@ -47,7 +82,7 @@ const StudentForm = ({ formData, onSubmit, onCancel, mode, classes, loading }) =
           type="email"
           name="email"
           value={formData.email}
-          onChange={onSubmit}
+          onChange={onFormChange}
           required
           placeholder="email@example.com"
         />
@@ -58,7 +93,7 @@ const StudentForm = ({ formData, onSubmit, onCancel, mode, classes, loading }) =
         <select
           name="class_id"
           value={formData.class_id || ''}
-          onChange={onSubmit}
+          onChange={onFormChange}
           required
         >
           <option value="">Sélectionner une classe</option>
@@ -73,14 +108,21 @@ const StudentForm = ({ formData, onSubmit, onCancel, mode, classes, loading }) =
       {mode === 'add' && (
         <div className="form-group">
           <label>Mot de passe</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={onSubmit}
-            required={mode === 'add'}
-            placeholder="••••••••"
-          />
+          <div className="form-group">
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={onFormChange}
+              required={mode === 'add'}
+              placeholder="••••••••"
+              minLength={8}
+              title="Le mot de passe doit contenir au moins 8 caractères"
+            />
+            <small className="form-text text-muted">
+              Le mot de passe doit contenir au moins 8 caractères
+            </small>
+          </div>
         </div>
       )}
       
@@ -115,7 +157,9 @@ function StudentsManagement() {
   const [selectedClass, setSelectedClass] = useState('');
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [feedback, setFeedback] = useState({ show: false, message: '', type: 'info' });
+  const feedbackTimeout = useRef(null);
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState('add'); // 'add' or 'edit'
   const [currentStudentId, setCurrentStudentId] = useState(null);
@@ -123,14 +167,14 @@ function StudentsManagement() {
     name: '',
     email: '',
     class_id: '',
-    password: 'password123' // Default password
+    password: 'Student@123' // Strong default password that meets requirements
   });
   const formRef = React.useRef(null);
   
-  // Don't fetch students until a class is selected
-  const [initialLoad, setInitialLoad] = useState(true);
+    // Ne pas charger les étudiants tant qu'une classe n'est pas sélectionnée
+  const [error, setError] = useState('');
 
-  // Fetch classes on component mount
+  // Charger les classes au montage du composant
   useEffect(() => {
     const fetchClasses = async () => {
       const token = localStorage.getItem('token');
@@ -142,14 +186,27 @@ function StudentsManagement() {
 
       try {
         setLoading(true);
-        const classesResponse = await axios.get(`${API_URL}/classes`, {
-          headers: { Authorization: `Bearer ${token}` }
+        const response = await axios.get(`${API_URL}/classes`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
         });
-        const classesData = classesResponse.data?.data || classesResponse.data || [];
+        
+        // Handle both array and object responses
+        const responseData = response.data?.data || response.data;
+        const classesData = Array.isArray(responseData) ? responseData : [];
+        
         setClasses(classesData);
+        setError('');
       } catch (error) {
         console.error('Error fetching classes:', error);
-        setError(`Erreur lors du chargement des classes: ${error.response?.data?.message || error.message}`);
+        const errorMessage = error.response?.data?.message || 
+                            error.response?.data?.error || 
+                            error.message || 
+                            'Erreur lors du chargement des classes';
+        setError(errorMessage);
       } finally {
         setLoading(false);
         setInitialLoad(false);
@@ -159,72 +216,99 @@ function StudentsManagement() {
     fetchClasses();
   }, []);
 
-  // Fetch students when selectedClass changes
-  useEffect(() => {
-    if (!selectedClass) {
+  // Fonction pour récupérer les étudiants
+  const fetchStudents = async (classId) => {
+    if (!classId) {
       setStudents([]);
       return;
     }
 
-    const fetchStudents = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('Vous devez être connecté.');
+      return;
+    }
 
-      try {
-        setLoading(true);
-        const classStudentsResponse = await axios.get(`${API_URL}/classes/${selectedClass}/students`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        const formattedStudents = (classStudentsResponse.data || []).map(item => ({
-          ...item.user,
-          student: {
-            ...item,
-            class_id: selectedClass
-          }
-        }));
-        
-        setStudents(formattedStudents);
-      } catch (error) {
-        console.error('Error fetching students:', error);
-        setError(`Erreur lors du chargement des étudiants: ${error.response?.data?.message || error.message}`);
-      } finally {
-        setLoading(false);
-      }
-    };
+    try {
+      setLoading(true);
+      // D'abord, récupérer tous les étudiants de la classe sélectionnée
+      const response = await axios.get(`${API_URL}/classes/${classId}/students`, { 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        } 
+      });
 
-    fetchStudents();
+      // Traiter la réponse - gérer à la fois les tableaux et les objets
+      const responseData = response.data?.data || response.data || [];
+      const studentsArray = Array.isArray(responseData) ? responseData : [responseData];
+      
+      // Map the students data
+      const studentsData = studentsArray.map(student => {
+        // Handle both nested user object and flat structure
+        const studentObj = student.user || student;
+        return {
+          id: studentObj.id || student.id,
+          name: studentObj.name || '',
+          email: studentObj.email || '',
+          class_id: studentObj.class_id || student.class_id || classId,
+          class_name: studentObj.class_name || 
+                     (student.class ? student.class.name : '')
+        };
+      });
+
+      setStudents(studentsData);
+      setError('');
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          'Erreur lors du chargement des étudiants';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Charger les étudiants lorsque la classe sélectionnée change
+  useEffect(() => {
+    if (selectedClass) {
+      fetchStudents(selectedClass);
+    } else {
+      setStudents([]);
+    }
   }, [selectedClass]);
-  
+
   const filteredStudents = students;
 
   const toggleForm = () => {
     setShowForm(!showForm);
     if (showForm) {
-      // Reset form when hiding
+      // Réinitialiser le formulaire lors de la fermeture
       setFormMode('add');
       setCurrentStudentId(null);
       setFormData({
         name: '',
         email: '',
         class_id: '',
-        password: 'password123'
+        password: 'Etudiant@123'
       });
     }
   };
 
   const handleEdit = (student) => {
-    // First, scroll to top of the page
+    // Faire défiler vers le haut de la page
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // Then update the form data and show the form
+    // Mettre à jour les données du formulaire et l'afficher
     setFormMode('edit');
     setCurrentStudentId(student.id);
     setFormData({
-      name: student.name,
-      email: student.email,
-      class_id: student.student?.class_id || '',
-      password: '' // Don't show password in edit mode
+      name: student.name || '',
+      email: student.email || '',
+      class_id: student.class_id || selectedClass || '',
+      password: '' // Ne pas afficher le mot de passe en mode édition
     });
     
     // Show the form
@@ -238,33 +322,37 @@ function StudentsManagement() {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`${API_URL}/users/${studentId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      };
       
+      // Use DELETE to /users/{id} endpoint
+      await axios.delete(
+        `${API_URL}/users/${studentId}`,
+        { headers }
+      );
+      
+      // Update the local state
       setStudents(prev => prev.filter(s => s.id !== studentId));
       setError('');
       // Show success message
-      const successMsg = document.createElement('div');
-      successMsg.className = 'success-message';
-      successMsg.textContent = 'Étudiant supprimé avec succès';
-      document.body.appendChild(successMsg);
-      setTimeout(() => successMsg.remove(), 3000);
+      showFeedback('Étudiant supprimé avec succès', 'success');
     } catch (error) {
       setError(`Erreur lors de la suppression: ${error.response?.data?.message || error.message}`);
     }
   };
 
-
-  
   const getStudentClassName = (student) => {
-    // Get the class ID from either the nested class object or directly from class_id
-    const classId = student.student?.class?.id || student.student?.class_id;
+    // Vérifier si l'étudiant a directement les informations de classe
+    if (student.class_name) return student.class_name;
     
-    // Find the class in our classes array
+    // Sinon, essayer de trouver dans le tableau des classes si nécessaire
+    const classId = student.class_id || student.student?.class_id;
+    if (!classId) return 'Non assigné';
+    
     const studentClass = classes.find(c => c.id == classId);
-    
-    // Return the class name if found, otherwise return default
     return studentClass?.name || 'Non assigné';
   };
 
@@ -278,67 +366,125 @@ function StudentsManagement() {
     }
   };
 
+  // Fonction pour valider le format d'email
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const showFeedback = (message, type = 'info', duration = 5000) => {
+    // Effacer tout délai existant
+    if (feedbackTimeout.current) {
+      clearTimeout(feedbackTimeout.current);
+    }
+
+    setFeedback({ show: true, message, type });
+
+    // Masquage automatique après la durée spécifiée
+    feedbackTimeout.current = setTimeout(() => {
+      setFeedback(prev => ({ ...prev, show: false }));
+    }, duration);
+  };
+
+  const hideFeedback = () => {
+    setFeedback(prev => ({ ...prev, show: false }));
+    if (feedbackTimeout.current) {
+      clearTimeout(feedbackTimeout.current);
+    }
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setError('');
+    
+    // Valider le formulaire
+    if (!formData.name || !formData.email || (formMode === 'add' && !formData.password)) {
+      showFeedback('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+
+    // Valider le format de l'email
+    if (!isValidEmail(formData.email)) {
+      showFeedback('Veuillez entrer une adresse email valide', 'error');
+      return;
+    }
+
+    // Valider la classe pour les étudiants
+    if (!formData.class_id) {
+      showFeedback('La classe est requise pour un étudiant', 'error');
+      return;
+    }
 
     try {
       const token = localStorage.getItem('token');
-      const url = formMode === 'add' 
-        ? `${API_URL}/register`
-        : `${API_URL}/users/${currentStudentId}`;
-      
-      const payload = {
-        name: formData.name,
-        email: formData.email,
-        role: ROLE_ETUDIANT,
-        class_id: formData.class_id,
-        ...(formMode === 'add' && { password: formData.password })
-      };
-
-      await (formMode === 'add'
-        ? axios.post(url, payload, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-        : axios.put(url, payload, {
-            headers: { Authorization: `Bearer ${token}` }
-          }));
-
-
-      // Refresh students list based on current filter
-      if (selectedClass) {
-        const classStudentsResponse = await axios.get(`${API_URL}/classes/${selectedClass}/students`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const formattedStudents = (classStudentsResponse.data || []).map(item => ({
-          ...item.user,
-          student: {
-            ...item,
-            class_id: selectedClass
-          }
-        }));
-        setStudents(formattedStudents);
-      } else {
-        const allStudentsResponse = await axios.get(`${API_URL}/users?role=étudiant`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const allStudents = allStudentsResponse.data?.data || allStudentsResponse.data || [];
-        setStudents(allStudents);
+      if (!token) {
+        throw new Error('Vous devez être connecté.');
       }
 
-      // Show success message
-      const successMsg = document.createElement('div');
-      successMsg.className = 'success-message';
-      successMsg.textContent = `Étudiant ${formMode === 'add' ? 'ajouté' : 'mis à jour'} avec succès`;
-      document.body.appendChild(successMsg);
-      setTimeout(() => successMsg.remove(), 3000);
+      setIsSubmitting(true);
+      setError('');
 
-      // Reset form
-      toggleForm();
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        role: ROLE_ETUDIANT,
+        class_id: formData.class_id,
+      };
+
+      // Inclure le mot de passe uniquement pour les nouveaux étudiants
+      if (formMode === 'add') {
+        const password = formData.password || 'Etudiant@123';
+        if (password.length < 8) {
+          throw new Error('Le mot de passe doit contenir au moins 8 caractères');
+        }
+        payload.password = password;
+        payload.password_confirmation = password;
+      }
+
+      const isEdit = formMode === 'edit' && currentStudentId;
+      const url = isEdit 
+        ? `${API_URL}/users/${currentStudentId}`
+        : `${API_URL}/users`;
+
+      // Effectuer la requête API
+      const response = await axios({
+        method: isEdit ? 'put' : 'post',
+        url,
+        data: payload,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Afficher le message de succès
+      showFeedback(
+        isEdit ? 'Étudiant mis à jour avec succès' : 'Étudiant ajouté avec succès',
+        'success'
+      );
+      
+      // Actualiser la liste des étudiants avec notre fonction fetchStudents
+      if (selectedClass) {
+        await fetchStudents(selectedClass);
+      }
+
+      // Réinitialiser le formulaire
+      setFormData({
+        name: '',
+        email: '',
+        class_id: '',
+        password: 'Etudiant@123'
+      });
+      setShowForm(false);
+      setFormMode('add');
+      setCurrentStudentId(null);
     } catch (error) {
-      console.error('Error saving student:', error);
-      setError(`Erreur lors de l'enregistrement: ${error.response?.data?.message || error.message}`);
+      console.error('Erreur lors de l\'enregistrement:', error);
+      const errorMessage = error.response?.data?.message || 
+                         error.response?.data?.error || 
+                         error.message || 
+                         'Erreur lors de l\'enregistrement';
+      showFeedback(`Erreur: ${errorMessage}`, 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -349,6 +495,13 @@ function StudentsManagement() {
 
   return (
     <div className="students-management">
+      {feedback.show && (
+        <FeedbackMessage
+          type={feedback.type}
+          message={feedback.message}
+          onClose={hideFeedback}
+        />
+      )}
       <div className="page-header">
         <h1 className="page-title">Gestion des Étudiants</h1>
         {!showForm && (
@@ -367,6 +520,7 @@ function StudentsManagement() {
             formData={formData}
             onSubmit={handleFormSubmit}
             onCancel={toggleForm}
+            onFormChange={handleFormChange}
             mode={formMode}
             classes={classes}
             loading={isSubmitting}
@@ -374,11 +528,8 @@ function StudentsManagement() {
         </div>
       )}
 
-      {error && <div className="error-message">{error}</div>}
-      
-      <div className="controls">
-        <div className="form-group">
-          <label htmlFor="class-select">Sélectionner une classe</label>
+      <div className="form-group">
+        <label htmlFor="class-select">Sélectionner une classe</label>
           <select
             id="class-select"
             className="class-select"
@@ -394,7 +545,6 @@ function StudentsManagement() {
             ))}
           </select>
         </div>
-      </div>
 
       {loading ? (
         <div className="loading">Chargement en cours...</div>

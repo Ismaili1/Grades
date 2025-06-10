@@ -16,7 +16,6 @@ import BulletinScolaire from "./pages/Teacher/etudiants";
 
 // Admin Pages
 import AddClassForm from "./pages/Admin/add-class";
-import AddStudent from "./pages/Admin/add-student";
 import AddSubject from "./pages/Admin/add-subject";
 import AddTeacher from "./pages/Admin/add-teacher";
 import ClassStudents from "./pages/Admin/ClassStudent";
@@ -26,7 +25,6 @@ import TeachersManagement from "./pages/Admin/TeachersManagement";
 import SubjectsManagement from "./pages/Admin/SubjectsManagement";
 import ClassesManagement from "./pages/Admin/ClassesManagement";
 
-import EditStudent from "./pages/Admin/edit-student";
 import EditSubject from "./pages/Admin/edit-subject";
 import EditTeacher from "./pages/Admin/edit-teacher";
 import EditClass from "./pages/Admin/edit-class";
@@ -42,7 +40,6 @@ function App() {
         <Route path="/admin" element={<Layout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="add-class" element={<AddClassForm />} />
-          <Route path="add-student" element={<AddStudent />} />
           <Route path="add-subject" element={<AddSubject />} />
           <Route path="add-teacher" element={<AddTeacher />} />
           <Route path="class/:id" element={<ClassStudents />} />
@@ -54,7 +51,6 @@ function App() {
           <Route path="classes" element={<ClassesManagement />} />
 
           {/* Edit Routes */}
-          <Route path="edit-student/:id" element={<EditStudent />} />
           <Route path="edit-subject/:id" element={<EditSubject />} />
           <Route path="edit-teacher/:id" element={<EditTeacher />} />
           <Route path="edit-class/:id" element={<EditClass />} />
